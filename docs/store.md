@@ -1,5 +1,10 @@
 # App Store listing: Legal Light
 
+**1.0 (5) submitted for review 2026-11-08 ~16:05 CST** (reviewSubmission db25d737-…). Builds 1–4 were
+superseded: 2 narrower island timer, 3 icon+ring island and CFBundleName, 4 in-app header, 5 iPhone-only
+(4 declared iPad, which demanded iPad screenshots). Blockers met on the first submit: contentRightsDeclaration
+(USES_THIRD_PARTY_CONTENT) and App Privacy must be *published*, not just saved.
+
 Record created 2026-11-08 by Jason as **Legal Light: WI Shooting Hours** (ASC app id 6832333458,
 SKU `legal-light`, bundle id `dev.ducktyping.shootinghours`). `tools/asc/listing.py` pushes the
 fields below through the API; App Privacy and pricing/availability are noted where they need the web UI.
