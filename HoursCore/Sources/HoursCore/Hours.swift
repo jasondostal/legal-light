@@ -67,12 +67,19 @@ public struct Hours: Equatable, Sendable {
 public struct HoursStatus: Equatable, Sendable {
     public enum State: String, Sendable { case before, open, after }
     public let state: State
+    /// The previous transition (when this state began).
+    public let since: Date
     /// The next transition: opening (before/after) or closing (open).
     public let target: Date
     /// The day whose window `target` belongs to.
     public let hours: Hours
 
     public var isLegal: Bool { state == .open }
+    /// 0 → 1 through the current state, for progress rings.
+    public func progress(at now: Date) -> Double {
+        let span = target.timeIntervalSince(since)
+        return span > 0 ? min(1, max(0, now.timeIntervalSince(since) / span)) : 1
+    }
 }
 
 /// A spot and rule set: everything needed to answer "when is it legal?".
@@ -80,12 +87,14 @@ public struct Spot: Codable, Equatable, Sendable {
     public var lat: Double
     public var lon: Double
     public var name: String?
+    /// The spot came from a GPS fix (refresh it when the app opens).
+    public var gps: Bool
     public var rules: RuleSet
     /// nil = from the county lookup.
     public var areaOverride: Area?
 
-    public init(lat: Double, lon: Double, name: String? = nil, rules: RuleSet = .waterfowl, areaOverride: Area? = nil) {
-        self.lat = lat; self.lon = lon; self.name = name; self.rules = rules; self.areaOverride = areaOverride
+    public init(lat: Double, lon: Double, name: String? = nil, gps: Bool = false, rules: RuleSet = .waterfowl, areaOverride: Area? = nil) {
+        self.lat = lat; self.lon = lon; self.name = name; self.gps = gps; self.rules = rules; self.areaOverride = areaOverride
     }
 
     public var whereabouts: Locate.Where { Locate.county(lat: lat, lon: lon) }
@@ -100,10 +109,13 @@ public struct Spot: Codable, Equatable, Sendable {
     public func status(at now: Date = Date(), rules r: RuleSet? = nil) -> HoursStatus {
         let today = Central.today(now)
         let h = hours(on: today, rules: r)
-        if now < h.open { return HoursStatus(state: .before, target: h.open, hours: h) }
-        if now < h.close { return HoursStatus(state: .open, target: h.close, hours: h) }
+        if now < h.open {
+            let y = hours(on: today.adding(days: -1), rules: r)
+            return HoursStatus(state: .before, since: y.close, target: h.open, hours: h)
+        }
+        if now < h.close { return HoursStatus(state: .open, since: h.open, target: h.close, hours: h) }
         let t = hours(on: today.adding(days: 1), rules: r)
-        return HoursStatus(state: .after, target: t.open, hours: t)
+        return HoursStatus(state: .after, since: h.close, target: t.open, hours: t)
     }
 
     /// Every open/close instant from `from` for `days` days: the moments a

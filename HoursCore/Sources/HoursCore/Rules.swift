@@ -37,7 +37,7 @@ public struct LongitudeZone: Equatable, Sendable {
 
 /// The rule sets. Every Wisconsin species falls under one of these four.
 public enum RuleSet: String, Codable, CaseIterable, Identifiable, Sendable {
-    case waterfowl, teal, smallgame, springturkey
+    case waterfowl, smallgame, springturkey, teal
     public var id: String { rawValue }
 
     /// Minutes relative to sunrise / sunset.
@@ -54,7 +54,7 @@ public enum RuleSet: String, Codable, CaseIterable, Identifiable, Sendable {
     }
     public var short: String {
         switch self {
-        case .waterfowl: return "Waterfowl"
+        case .waterfowl: return "Ducks"
         case .teal: return "Teal"
         case .smallgame: return "Deer"
         case .springturkey: return "Turkey"
