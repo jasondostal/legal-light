@@ -43,6 +43,7 @@ targets:
         NSLocationWhenInUseUsageDescription: Your spot decides which shooting-hours zone you're in. Your location stays on your phone.
         UILaunchScreen:
           UIColorName: LaunchBackground
+        UIRequiresFullScreen: true
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         UIUserInterfaceStyle: Dark
