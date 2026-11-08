@@ -14,16 +14,7 @@ struct HoursEntry: TimelineEntry {
 
 // MARK: - views
 
-enum WTheme {
-    static let bg = Color(red: 0.035, green: 0.047, blue: 0.075)
-    static let dim = Color(red: 0.58, green: 0.62, blue: 0.70)
-    static func color(_ s: HoursStatus.State) -> Color {
-        switch s {
-        case .before: return Color(red: 0.42, green: 0.66, blue: 1.00)
-        case .open: return Color(red: 1.00, green: 0.66, blue: 0.20)
-        case .after: return Color(red: 0.62, green: 0.56, blue: 0.86)
-        }
-    }
+extension Theme {
     static func verb(_ s: HoursStatus.State) -> String { s == .open ? "Closes in" : "Opens in" }
 }
 
@@ -35,7 +26,7 @@ struct HoursWidgetView: View {
     private var family: WidgetFamily { forced ?? envFamily }
 
     private var st: HoursStatus { e.status }
-    private var c: Color { WTheme.color(st.state) }
+    private var c: Color { Theme.color(st.state) }
     private var timer: some View {
         Text(timerInterval: e.date...max(e.date, st.target), countsDown: true).monospacedDigit()
     }
@@ -66,9 +57,9 @@ struct HoursWidgetView: View {
             AccessoryWidgetBackground()
             VStack(spacing: 0) {
                 Image(systemName: st.isLegal ? "sunset.fill" : "sunrise.fill").font(.system(size: 13, weight: .semibold))
-                Text(Fmt.time(st.target, bare: true)).font(.system(size: 17, weight: .bold, design: .rounded))
+                Text(Fmt.time(st.target, bare: true)).font(.mono(16, .bold))
                     .minimumScaleFactor(0.6).lineLimit(1)
-                Text(e.rules.short.uppercased()).font(.system(size: 8, weight: .heavy)).lineLimit(1)
+                Text(e.rules.short.uppercased()).font(.pixel(7)).lineLimit(1)
             }
             .padding(.horizontal, 4)
         }
@@ -77,34 +68,35 @@ struct HoursWidgetView: View {
 
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("\(e.rules.short.uppercased()) · \(WTheme.verb(st.state).uppercased())")
-                .font(.system(size: 11, weight: .heavy)).widgetAccentable()
-            timer.font(.system(size: 26, weight: .bold, design: .rounded)).lineLimit(1)
+            Text("\(e.rules.short.uppercased()) · \(Theme.verb(st.state).uppercased())")
+                .font(.pixel(10)).widgetAccentable()
+            timer.font(.mono(25, .bold)).kerning(-1).lineLimit(1)
             Text("\(Fmt.time(st.hours.open, bare: true)) – \(Fmt.time(st.hours.close, bare: true))\(st.state == .after ? " tmrw" : "")")
-                .font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary)
+                .font(.mono(12)).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var small: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(e.rules.short.uppercased()).font(.system(size: 11, weight: .heavy)).tracking(1.2).foregroundStyle(WTheme.dim)
-            Text(WTheme.verb(st.state)).font(.system(size: 13, weight: .bold)).foregroundStyle(c)
-            timer.font(.system(size: 30, weight: .bold, design: .rounded)).foregroundStyle(.white)
+            Text(e.rules.short.uppercased()).font(.pixel(10)).kerning(1).foregroundStyle(Theme.bone)
+            Text(Theme.verb(st.state).uppercased()).font(.pixel(10)).kerning(1).foregroundStyle(c)
+            timer.font(.mono(30, .bold)).kerning(-1.5).foregroundStyle(Theme.countColor(st.state))
                 .minimumScaleFactor(0.6).lineLimit(1)
             Spacer(minLength: 0)
             ProgressView(timerInterval: st.since...max(st.since.addingTimeInterval(1), st.target), countsDown: false) {
                 EmptyView()
             } currentValueLabel: { EmptyView() }
                 .tint(c)
+                .background(Theme.line, in: Capsule())
             HStack {
                 Text(Fmt.time(st.hours.open, bare: true))
                 Spacer()
                 Text(Fmt.time(st.hours.close, bare: true))
             }
-            .font(.system(size: 13, weight: .semibold, design: .rounded)).monospacedDigit().foregroundStyle(.white)
+            .font(.mono(13, .bold)).monospacedDigit().foregroundStyle(Theme.bone)
             Text(e.hasSpot ? (e.spot.name ?? "Your spot") : "Open to set spot")
-                .font(.system(size: 10)).foregroundStyle(WTheme.dim).lineLimit(1)
+                .font(.mono(10)).foregroundStyle(Theme.reed).lineLimit(1)
         }
     }
 
@@ -112,17 +104,17 @@ struct HoursWidgetView: View {
         HStack(alignment: .top, spacing: 16) {
             small
             VStack(alignment: .leading, spacing: 5) {
-                Text("NEXT DAYS").font(.system(size: 11, weight: .heavy)).tracking(1.2).foregroundStyle(WTheme.dim)
+                Text("THIS WEEK").font(.pixel(10)).kerning(1).foregroundStyle(Theme.lantern)
                 let d0 = Central.today(e.date)
                 ForEach(0..<4, id: \.self) { i in
                     let h = e.spot.hours(on: d0.adding(days: i), rules: e.rules)
                     HStack {
                         Text(i == 0 ? "Today" : Fmt.day(h.date).components(separatedBy: " ").first!)
-                            .foregroundStyle(WTheme.dim)
+                            .foregroundStyle(i == 0 ? Theme.lantern : Theme.reed)
                         Spacer()
-                        Text("\(Fmt.time(h.open, bare: true))–\(Fmt.time(h.close, bare: true))").foregroundStyle(.white)
+                        Text("\(Fmt.time(h.open, bare: true))–\(Fmt.time(h.close, bare: true))").foregroundStyle(Theme.bone)
                     }
-                    .font(.system(size: 13, weight: .medium, design: .rounded)).monospacedDigit()
+                    .font(.mono(12, i == 0 ? .bold : .regular)).monospacedDigit()
                 }
                 Spacer(minLength: 0)
             }

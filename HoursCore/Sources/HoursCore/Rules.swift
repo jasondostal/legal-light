@@ -66,7 +66,7 @@ public enum RuleSet: String, Codable, CaseIterable, Identifiable, Sendable {
         case .waterfowl: return "Ducks, geese, coot, mourning dove and other migratory game birds"
         case .teal: return "The September teal-only season"
         case .smallgame: return "Deer, bear, small game and fall turkey"
-        case .springturkey: return "Spring turkey"
+        case .springturkey: return "Spring turkey (fall turkey runs on the deer hours)"
         }
     }
     public var rule: String {

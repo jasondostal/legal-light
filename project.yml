@@ -21,6 +21,7 @@ targets:
     platform: iOS
     sources:
       - path: App
+      - path: Shared
       - path: Widget/HoursWidgetView.swift
     dependencies:
       - package: HoursCore
@@ -43,6 +44,10 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         UIUserInterfaceStyle: Dark
+        UIAppFonts:
+          - Silkscreen-Regular.ttf
+          - Silkscreen-Bold.ttf
+          - JetBrainsMono.ttf
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
@@ -53,6 +58,7 @@ targets:
     platform: iOS
     sources:
       - path: Widget
+      - path: Shared
     dependencies:
       - package: HoursCore
       - sdk: WidgetKit.framework
@@ -70,6 +76,10 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        UIAppFonts:
+          - Silkscreen-Regular.ttf
+          - Silkscreen-Bold.ttf
+          - JetBrainsMono.ttf
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.ducktyping.shootinghours.widget

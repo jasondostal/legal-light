@@ -52,7 +52,7 @@ struct HoursWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: "HoursWidget", intent: HoursConfig.self, provider: Provider()) { e in
             HoursWidgetView(e: e)
-                .containerBackground(for: .widget) { WTheme.bg }
+                .containerBackground(for: .widget) { Theme.night }
         }
         .configurationDisplayName("Shooting hours")
         .description("Counts down to legal light and to close, for your spot.")

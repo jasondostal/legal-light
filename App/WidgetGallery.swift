@@ -27,11 +27,11 @@ struct WidgetGallery: View {
                     HStack(spacing: 14) {
                         ForEach(entries.indices, id: \.self) { i in
                             HoursWidgetView(e: entries[i], forced: .systemSmall).padding(16)
-                                .frame(width: 170, height: 170).background(WTheme.bg, in: RoundedRectangle(cornerRadius: 22))
+                                .frame(width: 170, height: 170).background(Theme.night, in: RoundedRectangle(cornerRadius: 22))
                         }
                     }
                     HoursWidgetView(e: entries[1], forced: .systemMedium).padding(16)
-                        .frame(width: 364, height: 170).background(WTheme.bg, in: RoundedRectangle(cornerRadius: 22))
+                        .frame(width: 364, height: 170).background(Theme.night, in: RoundedRectangle(cornerRadius: 22))
                 }
                 .padding(16)
             }

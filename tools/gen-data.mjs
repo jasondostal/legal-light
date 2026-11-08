@@ -32,6 +32,12 @@ out('HoursCore/Sources/HoursCore/Resources/geo.json', {
   places: GEO.places.map(([name, county, lat, lon, seat]) => ({ name, county, lat, lon, seat: !!seat })),
 });
 out('HoursCore/Sources/HoursCore/Resources/ducks.json', { duckLine: MD.duckLine, openWater: MD.openWater });
+// The zone map: neighbouring states, the northern/southern table line, county label spots.
+out('HoursCore/Sources/HoursCore/Resources/map.json', {
+  neighbors: MD.neighbors.map((n) => n.polys),
+  areaLine: MD.areaLine,
+  countyLabels: MD.countyLabels.map(([name, lon, lat]) => ({ name, lon, lat })),
+});
 out('HoursCore/Tests/HoursCoreTests/Fixtures/fixture.json', FX);
 
 // Cross-check cases: the JS engine's own answers over a spread of places,

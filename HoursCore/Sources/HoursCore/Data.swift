@@ -13,6 +13,7 @@ public enum Bundled {
     public static let official = Official(json("official", as: Official.File.self))
     public static let geo = json("geo", as: Geo.self)
     public static let ducks = json("ducks", as: DuckData.self)
+    public static let map = json("map", as: MapData.self)
 }
 
 /// The DNR's published Zone A tables, verbatim: one string per month, one
@@ -61,4 +62,13 @@ public struct Geo: Decodable, Sendable {
 public struct DuckData: Decodable, Sendable {
     public let duckLine: [[Double]]
     public let openWater: [[Ring]]
+}
+
+/// Extra geometry for the zone map (generated with the rest).
+public struct MapData: Decodable, Sendable {
+    public struct Label: Decodable, Sendable { public let name: String, lon: Double, lat: Double }
+    public let neighbors: [[[Ring]]]
+    /// The northern/southern shooting-hours table line, as polylines of [lon, lat].
+    public let areaLine: [[[Double]]]
+    public let countyLabels: [Label]
 }

@@ -27,7 +27,7 @@ public enum Central {
     public static let zone = TimeZone(identifier: "America/Chicago")!
     static let dayMs = 86_400_000.0
 
-    static var calendar: Calendar = {
+    public static let calendar: Calendar = {
         var c = Calendar(identifier: .gregorian)
         c.timeZone = zone
         return c

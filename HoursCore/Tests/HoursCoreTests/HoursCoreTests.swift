@@ -123,6 +123,12 @@ final class HoursCoreTests: XCTestCase {
         }
     }
 
+    func testMapDataLoads() {
+        XCTAssertEqual(Bundled.map.countyLabels.count, 72)
+        XCTAssertEqual(Bundled.map.neighbors.count, 4)
+        XCTAssertFalse(Bundled.map.areaLine.isEmpty)
+    }
+
     func testOutOfStateAndOpenWater() {
         XCTAssertFalse(Locate.county(lat: 44.98, lon: -93.27).inside) // Minneapolis
         XCTAssertFalse(Locate.county(lat: 45.745, lon: -87.065).inside) // Escanaba

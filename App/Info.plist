@@ -24,6 +24,12 @@
 	<false/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your spot decides which shooting-hours zone you're in. Your location stays on your phone.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Silkscreen-Regular.ttf</string>
+		<string>Silkscreen-Bold.ttf</string>
+		<string>JetBrainsMono.ttf</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>

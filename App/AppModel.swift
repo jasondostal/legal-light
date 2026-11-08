@@ -33,6 +33,14 @@ final class AppModel: NSObject, CLLocationManagerDelegate {
         isDefaultSpot = false
     }
 
+    /// A spot tapped on the map.
+    func setCoordinates(lat: Double, lon: Double) {
+        let near = Locate.nearestPlace(lat: lat, lon: lon)
+        let name = near.map { $0.km < 3 ? $0.place.name : "Near \($0.place.name)" } ?? "Map pin"
+        spot = Spot(lat: lat, lon: lon, name: name, gps: false, rules: spot.rules)
+        isDefaultSpot = false
+    }
+
     /// One-shot GPS fix. Called from the button, and on launch when the saved
     /// spot came from GPS (you've likely driven somewhere since).
     func locate() {

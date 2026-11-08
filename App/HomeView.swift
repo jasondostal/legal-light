@@ -6,37 +6,57 @@ struct HomeView: View {
     @State private var picking = false
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 header
+                CountdownCard(spot: model.spot, isDefault: model.isDefaultSpot) { picking = true }
                 RulePicker(selection: model.spot.rules) { model.setRules($0) }
-                CountdownCard(spot: model.spot)
-                WhereCard(spot: model.spot, whereabouts: model.whereabouts, duck: model.duckZone,
-                          isDefault: model.isDefaultSpot) { picking = true }
-                WeekCard(spot: model.spot)
-                SourceNote(spot: model.spot)
+                DayBar(spot: model.spot)
+                ZoneMap(spot: model.spot) { lat, lon in model.setCoordinates(lat: lat, lon: lon) }
+                    .id("map")
+                WeekCard(spot: model.spot).id("week")
+                SunCard(spot: model.spot)
+                Disclaimer(spot: model.spot)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 32)
         }
         .scrollIndicators(.hidden)
-        .background(Theme.bg.ignoresSafeArea())
+        .onAppear {
+            #if DEBUG
+            // screenshot aid: simctl launch ... -scroll map|week
+            if let i = CommandLine.arguments.firstIndex(of: "-scroll"), i + 1 < CommandLine.arguments.count {
+                let target = CommandLine.arguments[i + 1]
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { proxy.scrollTo(target, anchor: .top) }
+            }
+            #endif
+        }
+        }
+        .background(Theme.night.ignoresSafeArea())
         .sheet(isPresented: $picking) { LocationSheet().environment(model) }
     }
 
     private var header: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text("LEGAL LIGHT").font(.system(size: 13, weight: .heavy)).tracking(2.5).foregroundStyle(Theme.dim)
-            Spacer()
-            Button { picking = true } label: {
-                HStack(spacing: 5) {
-                    Image(systemName: model.spot.gps ? "location.fill" : "mappin")
-                    Text(model.spot.name ?? "Your spot").lineLimit(1)
+        VStack(alignment: .leading, spacing: 6) {
+            Text("// ~/wi/shooting-hours").font(.pixel(11)).foregroundStyle(Theme.mallard)
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Shooting Hours").font(.mono(26, .bold)).foregroundStyle(Theme.bone)
+                    Text("When the light goes legal").font(.mono(14, .medium)).foregroundStyle(Theme.lantern)
                 }
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Theme.text)
-                .padding(.horizontal, 11).padding(.vertical, 6)
-                .background(Theme.card, in: Capsule())
+                Spacer()
+                Button { picking = true } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: model.spot.gps ? "location.fill" : "mappin")
+                        Text(model.spot.name ?? "Your spot").lineLimit(1)
+                    }
+                    .font(.mono(13, .medium))
+                    .foregroundStyle(Theme.ink)
+                    .padding(.horizontal, 11).padding(.vertical, 7)
+                    .background(Theme.mallard, in: RoundedRectangle(cornerRadius: 8))
+                }
+                .buttonStyle(.plain)
             }
         }
         .padding(.top, 8)
@@ -50,24 +70,13 @@ struct RulePicker: View {
     let pick: (RuleSet) -> Void
 
     var body: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 8) {
-                ForEach(RuleSet.allCases) { r in
-                    let on = r == selection
-                    Button { pick(r) } label: {
-                        Text(r.label)
-                            .font(.system(size: 14, weight: on ? .bold : .medium))
-                            .foregroundStyle(on ? Theme.bg : Theme.text)
-                            .padding(.horizontal, 13).padding(.vertical, 8)
-                            .background(on ? Theme.text : Theme.card, in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(on ? .isSelected : [])
-                }
+        VStack(alignment: .leading, spacing: 6) {
+            Segmented(items: RuleSet.allCases.map { ($0.rawValue, $0.short) }, selected: selection.rawValue) {
+                pick(RuleSet(rawValue: $0)!)
             }
+            Text("\(selection.covers). \(selection.rule).")
+                .font(.mono(12)).foregroundStyle(Theme.comment)
         }
-        .scrollIndicators(.hidden)
-        .sensoryFeedback(.selection, trigger: selection)
     }
 }
 
@@ -75,97 +84,136 @@ struct RulePicker: View {
 
 struct CountdownCard: View {
     let spot: Spot
+    let isDefault: Bool
+    let setSpot: () -> Void
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { ctx in
             let st = spot.status(at: ctx.date)
             let c = Theme.color(st.state)
-            VStack(alignment: .leading, spacing: 10) {
-                Text(Theme.headline(st.state).uppercased())
-                    .font(.system(size: 13, weight: .heavy)).tracking(1.5).foregroundStyle(c)
-                Text(Fmt.duration(st.target.timeIntervalSince(ctx.date)))
-                    .font(.system(size: 76, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(Theme.text)
-                    .minimumScaleFactor(0.5).lineLimit(1)
-                    .contentTransition(.numericText(countsDown: true))
-                ProgressView(value: st.progress(at: ctx.date)).tint(c)
-                HStack {
-                    timeBlock("OPEN", st.hours.open, highlight: st.state != .open, c)
-                    Spacer()
-                    timeBlock("CLOSE", st.hours.close, highlight: st.state == .open, c)
+            let w = spot.whereabouts
+            let z = LongitudeZone.at(lon: spot.lon)
+            VStack(spacing: 0) {
+                VStack(spacing: 4) {
+                    Text(spot.rules.label.uppercased()).font(.pixel(11)).kerning(1.5).foregroundStyle(Theme.bone)
+                    if isDefault {
+                        Button(action: setSpot) {
+                            Text("\(spot.name ?? "Stevens Point"), the default. Set your spot").font(.mono(12)).foregroundStyle(Theme.lantern)
+                        }.buttonStyle(.plain)
+                    } else if !w.inside {
+                        Text("Outside Wisconsin: these are Wisconsin hours").font(.mono(12)).foregroundStyle(Theme.lantern)
+                    } else {
+                        Text("\(spot.name ?? "Your spot") · \(w.county ?? "") Co.").font(.mono(12)).foregroundStyle(Theme.reed)
+                    }
                 }
-                if st.state == .after || st.hours.date != Central.today(ctx.date) {
-                    Text("Tomorrow, \(Fmt.day(st.hours.date))").font(.footnote).foregroundStyle(Theme.dim)
-                }
-            }
-            .padding(18)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                LinearGradient(colors: [c.opacity(0.16), Theme.card], startPoint: .topLeading, endPoint: .bottomTrailing),
-                in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).stroke(c.opacity(0.25)))
-        }
-    }
+                .padding(.bottom, 10)
+                .frame(maxWidth: .infinity)
+                .overlay(alignment: .bottom) { Rectangle().fill(Theme.line).frame(height: 1) }
 
-    private func timeBlock(_ label: String, _ t: Date, highlight: Bool, _ c: Color) -> some View {
-        VStack(alignment: label == "OPEN" ? .leading : .trailing, spacing: 2) {
-            Text(label).font(.system(size: 11, weight: .heavy)).tracking(1.2).foregroundStyle(Theme.dim)
-            Text(Fmt.time(t)).font(.system(size: 24, weight: .semibold, design: .rounded)).monospacedDigit()
-                .foregroundStyle(highlight ? c : Theme.text)
+                Text(st.state == .open ? "SHOOTING HOURS" : st.state == .before ? "LEGAL LIGHT IN" : "DONE FOR TODAY")
+                    .font(.pixel(13)).kerning(2).foregroundStyle(c)
+                    .padding(.top, 14)
+                Text(Fmt.duration(st.target.timeIntervalSince(ctx.date)))
+                    .font(.mono(72, .bold)).kerning(-2)
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.countColor(st.state))
+                    .minimumScaleFactor(0.5).lineLimit(1)
+                Text(st.state == .open ? "closes at \(Fmt.time(st.target))" : "opens at \(Fmt.time(st.target))\(st.state == .after ? " tomorrow" : "")")
+                    .font(.mono(14)).foregroundStyle(Theme.reed)
+                    .padding(.bottom, 14)
+
+                HStack(alignment: .top) {
+                    VStack(spacing: 2) {
+                        Text("OPENS").font(.pixel(10)).kerning(1.5).foregroundStyle(Theme.reed)
+                        BigTime(date: st.hours.open, size: 34, color: st.state == .open ? Theme.bone : c)
+                    }.frame(maxWidth: .infinity)
+                    VStack(spacing: 2) {
+                        Text("CLOSES").font(.pixel(10)).kerning(1.5).foregroundStyle(Theme.reed)
+                        BigTime(date: st.hours.close, size: 34, color: st.state == .open ? c : Theme.bone)
+                    }.frame(maxWidth: .infinity)
+                }
+                .padding(.top, 12)
+                .overlay(alignment: .top) { Rectangle().fill(Theme.line).frame(height: 1) }
+
+                Text("\(spot.area.name) area (\(spot.area.reference.name) table), zone \(z.id), +\(z.minutes) min.")
+                    .font(.mono(11)).foregroundStyle(Theme.reed).multilineTextAlignment(.center)
+                    .padding(.top, 10)
+                Text(st.hours.source == .dnr ? "Read from the DNR's published \(String(st.hours.date.y)) table."
+                                             : "Computed the DNR's way: no \(String(st.hours.date.y)) table in the app yet.")
+                    .font(.mono(10)).foregroundStyle(st.hours.source == .dnr ? Theme.comment : Theme.lantern)
+                    .padding(.top, 2)
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity)
+            .background(Theme.panel, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Theme.line))
         }
     }
 }
 
-// MARK: - where you are, as the regs see it
+// MARK: - today, as a bar: night, twilight, legal, sun up, now
 
-struct WhereCard: View {
+struct DayBar: View {
     let spot: Spot
-    let whereabouts: Locate.Where
-    let duck: (zone: Locate.DuckZone, km: Double?)?
-    let isDefault: Bool
-    let change: () -> Void
 
     var body: some View {
-        let zone = LongitudeZone.at(lon: spot.lon)
-        VStack(alignment: .leading, spacing: 12) {
-            if isDefault {
-                Button(action: change) {
-                    Label("Showing Stevens Point. Set your spot.", systemImage: "location.circle")
-                        .font(.subheadline.weight(.semibold)).foregroundStyle(Theme.waiting)
+        TimelineView(.periodic(from: .now, by: 30)) { ctx in
+            let today = Central.today(ctx.date)
+            let h = spot.hours(on: today)
+            let sun = h.localSun
+            let t0 = h.open.addingTimeInterval(-75 * 60), t1 = h.close.addingTimeInterval(75 * 60)
+            VStack(alignment: .leading, spacing: 8) {
+                SectionHead(text: "Today, \(Fmt.day(today))")
+                GeometryReader { g in
+                    let W = g.size.width
+                    let x = { (d: Date?) -> CGFloat in
+                        guard let d else { return 0 }
+                        return max(0, min(W, CGFloat(d.timeIntervalSince(t0) / t1.timeIntervalSince(t0)) * W))
+                    }
+                    ZStack(alignment: .topLeading) {
+                        Rectangle().fill(Theme.darkFill).frame(height: 22).offset(y: 18)
+                        Rectangle().fill(Theme.twilight)
+                            .frame(width: x(sun.civilDusk) - x(sun.civilDawn), height: 22).offset(x: x(sun.civilDawn), y: 18)
+                        Rectangle().fill(Theme.dayFill)
+                            .frame(width: x(sun.sunset) - x(sun.sunrise), height: 22).offset(x: x(sun.sunrise), y: 18)
+                        Rectangle().fill(Theme.mallard)
+                            .frame(width: x(h.close) - x(h.open), height: 6).offset(x: x(h.open), y: 26)
+                        Text(Fmt.time(h.open, bare: true)).font(.mono(11, .bold)).foregroundStyle(Theme.bone)
+                            .fixedSize().position(x: x(h.open), y: 7)
+                        Text(Fmt.time(h.close, bare: true)).font(.mono(11, .bold)).foregroundStyle(Theme.bone)
+                            .fixedSize().position(x: x(h.close), y: 7)
+                        if ctx.date > t0 && ctx.date < t1 {
+                            Rectangle().fill(Theme.lantern).frame(width: 2, height: 30).offset(x: x(ctx.date) - 1, y: 14)
+                        }
+                        ForEach(ticks(t0, t1), id: \.self) { t in
+                            Text(hourLabel(t)).font(.mono(9)).foregroundStyle(Theme.comment)
+                                .fixedSize().position(x: x(t), y: 52)
+                        }
+                    }
                 }
-            }
-            if !whereabouts.inside {
-                Label("That's outside Wisconsin. These are Wisconsin hours.", systemImage: "exclamationmark.triangle.fill")
-                    .font(.subheadline.weight(.semibold)).foregroundStyle(Theme.warn)
-            }
-            Grid(alignment: .leading, horizontalSpacing: 14, verticalSpacing: 9) {
-                row("County", whereabouts.county.map { "\($0) Co." } ?? "—")
-                row("Hours area", "\(spot.area.name) · times from \(spot.area.reference.name)")
-                row("Hours zone", "\(zone.id), \(zone.minutes == 0 ? "+0" : "+\(zone.minutes)") min (\(zone.desc))")
-                if spot.rules == .waterfowl || spot.rules == .teal, let duck {
-                    row("Duck zone", duck.zone.name)
+                .frame(height: 60)
+                HStack(spacing: 12) {
+                    key(Theme.mallard, "legal"); key(Theme.dayFill, "sun up"); key(Theme.twilight, "civil twilight"); key(Theme.lantern, "now")
                 }
+                .font(.mono(10)).foregroundStyle(Theme.reed)
             }
-            if let km = duck?.km, km < 1.5, spot.rules == .waterfowl {
-                Text("You're \(String(format: "%.1f", km)) km from the duck-zone line (US 10 / US 41). Check which side of the highway you're on.")
-                    .font(.footnote).foregroundStyle(Theme.warn)
-            }
-            if abs(-spot.lon - (-spot.lon).rounded()) < 0.02 && -spot.lon > 88 - 0.02 && -spot.lon < 92 + 0.02 {
-                Text("You're right on a zone line (\(Int((-spot.lon).rounded()))° W). Within about a mile of it, which side you are on changes the time by 4 minutes.")
-                    .font(.footnote).foregroundStyle(Theme.warn)
-            }
+            .panel()
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
-    @ViewBuilder private func row(_ k: String, _ v: String) -> some View {
-        GridRow {
-            Text(k).font(.subheadline).foregroundStyle(Theme.dim)
-            Text(v).font(.subheadline.weight(.medium)).foregroundStyle(Theme.text)
-        }
+    private func ticks(_ a: Date, _ b: Date) -> [Date] {
+        let cal = Central.calendar
+        var t = cal.nextDate(after: a, matching: DateComponents(minute: 0), matchingPolicy: .nextTime)!
+        var out: [Date] = []
+        while t < b { if cal.component(.hour, from: t) % 2 == 1 { out.append(t) }; t = t.addingTimeInterval(3600) }
+        return out
+    }
+    private func hourLabel(_ d: Date) -> String {
+        let h = Central.calendar.component(.hour, from: d)
+        return "\(h % 12 == 0 ? 12 : h % 12)\(h < 12 ? "a" : "p")"
+    }
+    private func key(_ c: Color, _ s: String) -> some View {
+        HStack(spacing: 4) { RoundedRectangle(cornerRadius: 2).fill(c).frame(width: 9, height: 9); Text(s) }
     }
 }
 
@@ -176,57 +224,100 @@ struct WeekCard: View {
 
     var body: some View {
         let today = Central.today()
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
+            SectionHead(text: "This week").padding(.bottom, 10)
             HStack {
-                Text("NEXT 7 DAYS").font(.system(size: 11, weight: .heavy)).tracking(1.2)
-                Spacer()
-                Text("OPEN").frame(width: 82, alignment: .trailing)
-                Text("CLOSE").frame(width: 82, alignment: .trailing)
+                Text("Day"); Spacer()
+                Text("Opens").frame(width: 84, alignment: .leading)
+                Text("Closes").frame(width: 84, alignment: .leading)
             }
-            .font(.system(size: 11, weight: .heavy)).foregroundStyle(Theme.dim)
-            .padding(.bottom, 8)
+            .font(.mono(11)).foregroundStyle(Theme.reed).padding(.horizontal, 6).padding(.bottom, 6)
             ForEach(0..<7, id: \.self) { i in
                 let d = today.adding(days: i)
                 let h = spot.hours(on: d)
                 HStack {
-                    Text(i == 0 ? "Today" : Fmt.day(d)).fontWeight(i == 0 ? .bold : .regular)
+                    Text(i == 0 ? "Today" : Fmt.day(d)).foregroundStyle(i == 0 ? Theme.lantern : Theme.bone)
                     Spacer()
-                    Text(Fmt.time(h.open)).frame(width: 82, alignment: .trailing)
-                    Text(Fmt.time(h.close)).frame(width: 82, alignment: .trailing)
+                    Text(Fmt.time(h.open)).frame(width: 84, alignment: .leading)
+                    Text(Fmt.time(h.close)).frame(width: 84, alignment: .leading)
                 }
-                .font(.system(size: 15, design: .rounded)).monospacedDigit()
-                .foregroundStyle(Theme.text)
-                .padding(.vertical, 7)
-                if i < 6 { Divider().overlay(Theme.line) }
+                .font(.mono(13, i == 0 ? .bold : .regular)).monospacedDigit()
+                .foregroundStyle(Theme.bone)
+                .padding(.vertical, 8).padding(.horizontal, 6)
+                .background(i == 0 ? Theme.lantern.opacity(0.07) : .clear, in: RoundedRectangle(cornerRadius: 4))
+                .overlay(alignment: .bottom) { if i < 6 { Rectangle().fill(Theme.line).frame(height: 1) } }
             }
         }
-        .padding(16)
-        .background(Theme.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .panel()
     }
 }
 
-// MARK: - where the numbers come from
+// MARK: - the true sun at your spot, for interest
 
-struct SourceNote: View {
+struct SunCard: View {
     let spot: Spot
 
     var body: some View {
         let h = spot.hours(on: Central.today())
+        let s = h.localSun
+        let moon = Moon.phase(Date())
         VStack(alignment: .leading, spacing: 8) {
-            Text("\(spot.rules.covers): \(spot.rules.rule.lowercased()).")
-            if spot.rules == .teal {
-                Text("Early teal is a short season in early September. Check this year's dates in the regulations.")
+            SectionHead(text: "Sun and moon here")
+            Grid(alignment: .leading, verticalSpacing: 6) {
+                row("Civil dawn", Fmt.time(s.civilDawn))
+                row("Sunrise", Fmt.time(s.sunrise))
+                row("Sunset", Fmt.time(s.sunset))
+                row("Civil dusk", Fmt.time(s.civilDusk))
+                row("Moon", "\(moon.name), \(Int((moon.lit * 100).rounded()))% lit")
             }
-            if h.source == .dnr {
-                Text("Read straight from the DNR's published \(String(h.date.y)) shooting hours table, plus your zone's minutes.")
-            } else {
-                Text("The DNR hasn't published \(String(h.date.y)) tables in this app yet, so these are computed the DNR's way (within a minute of their tables in past years). Check the official table before you hunt.")
-                    .foregroundStyle(Theme.warn)
+            if let lo = h.localOpen {
+                let diff = Int((h.open.timeIntervalSince(lo) / 60).rounded())
+                Text("Measured from the sun at your exact spot. The legal table opens \(diff == 0 ? "the same minute" : "\(abs(diff)) min \(diff > 0 ? "later" : "earlier")"), because it uses a reference town and whole-degree zones.")
+                    .font(.mono(10)).foregroundStyle(Theme.comment)
             }
-            Text("Not legal advice. The Wisconsin hunting regulations are the final word.")
         }
-        .font(.footnote)
-        .foregroundStyle(Theme.dim)
-        .padding(.horizontal, 4)
+        .panel()
+    }
+
+    @ViewBuilder private func row(_ k: String, _ v: String) -> some View {
+        GridRow {
+            Text(k).foregroundStyle(Theme.reed)
+            Text(v).foregroundStyle(Theme.bone).gridColumnAlignment(.trailing).frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        .font(.mono(13)).monospacedDigit()
+    }
+}
+
+/// Cheap moon phase (same as the web page).
+enum Moon {
+    static func phase(_ d: Date) -> (name: String, lit: Double) {
+        let syn = 29.530588853
+        let ref = Date(timeIntervalSince1970: 947_182_440) // 2000-01-06 18:14 UTC, a new moon
+        var age = (d.timeIntervalSince(ref) / 86400).truncatingRemainder(dividingBy: syn)
+        if age < 0 { age += syn }
+        let f = age / syn
+        let names = ["New moon", "Waxing crescent", "First quarter", "Waxing gibbous", "Full moon", "Waning gibbous", "Last quarter", "Waning crescent"]
+        return (names[Int((f * 8).rounded()) % 8], (1 - cos(2 * .pi * f)) / 2)
+    }
+}
+
+// MARK: - the fine print
+
+struct Disclaimer: View {
+    let spot: Spot
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            (Text("Not the law. ").bold().foregroundStyle(Theme.lantern)
+             + Text("The Wisconsin DNR's regulations and its published shooting hours tables govern. This app reads those tables and adds your zone's minutes; check the season dates and rules before you shoot, and allow yourself the margin."))
+            if spot.rules == .teal {
+                Text("Early teal is a short season in early September. Check this year's dates.")
+            }
+        }
+        .font(.mono(12)).foregroundStyle(Theme.bone)
+        .padding(.vertical, 10).padding(.horizontal, 14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.lantern.opacity(0.06))
+        .overlay(alignment: .leading) { Rectangle().fill(Theme.lantern).frame(width: 3) }
+        .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 }
