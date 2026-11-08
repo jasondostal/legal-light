@@ -153,7 +153,7 @@ struct AlertSettings: View {
             if beforeClose {
                 Segmented(items: [5, 10, 15, 30].map { ("\($0)", "\($0) min") }, selected: "\(lead)") { lead = Int($0)! }
             }
-            Text("For \(spot.rules.label.lowercased()) at \(spot.name ?? "your spot"). Scheduled on the phone two weeks ahead, so they fire with no signal.")
+            Text("For \(spot.rules.label.lowercased()) at \(spot.name ?? "your spot"). Scheduled on the phone two weeks ahead, so they fire with no signal. They get through Focus modes as time-sensitive.")
                 .font(.mono(11)).foregroundStyle(Theme.comment)
             if denied {
                 Text("Notifications are off for Legal Light. Turn them on in Settings → Notifications.").font(.mono(11)).foregroundStyle(Theme.lantern)

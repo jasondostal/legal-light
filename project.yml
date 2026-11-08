@@ -33,8 +33,7 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.dev.ducktyping.shootinghours
-        # TODO re-add once an Apple ID is signed in to Xcode (needs a profile regen):
-        # com.apple.developer.usernotifications.time-sensitive: true
+        com.apple.developer.usernotifications.time-sensitive: true
     info:
       path: App/Info.plist
       properties:
