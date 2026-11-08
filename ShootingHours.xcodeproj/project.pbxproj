@@ -415,7 +415,7 @@
 		7E36AAC8F0F4856F11D6B894 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-Mallard AppIcon-Teal AppIcon-Deer AppIcon-Turkey";
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-Mallard AppIcon-Teal AppIcon-Deer AppIcon-Squirrel AppIcon-Turkey";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = App/ShootingHours.entitlements;
@@ -468,7 +468,7 @@
 		C0E717E16A20FFD22A625F50 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-Mallard AppIcon-Teal AppIcon-Deer AppIcon-Turkey";
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-Mallard AppIcon-Teal AppIcon-Deer AppIcon-Squirrel AppIcon-Turkey";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = App/ShootingHours.entitlements;

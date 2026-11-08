@@ -5,7 +5,7 @@ import HoursCore
 /// Selectable app icons (Jason, 2026-11-08: pick one for your sport, or let it
 /// follow the rule set you're hunting). Art comes from tools/gen-icons.py.
 enum AppIconChoice: String, CaseIterable, Identifiable {
-    case dawn, mallard, teal, deer, turkey
+    case dawn, mallard, teal, deer, squirrel, turkey
     var id: String { rawValue }
 
     /// nil = the primary icon.
@@ -15,6 +15,7 @@ enum AppIconChoice: String, CaseIterable, Identifiable {
         case .mallard: return "AppIcon-Mallard"
         case .teal: return "AppIcon-Teal"
         case .deer: return "AppIcon-Deer"
+        case .squirrel: return "AppIcon-Squirrel"
         case .turkey: return "AppIcon-Turkey"
         }
     }
@@ -25,12 +26,18 @@ enum AppIconChoice: String, CaseIterable, Identifiable {
         case .mallard: return "Mallard"
         case .teal: return "Teal"
         case .deer: return "Whitetail"
+        case .squirrel: return "Fox squirrel"
         case .turkey: return "Tom"
         }
     }
 
     static func forRules(_ r: RuleSet) -> AppIconChoice {
-        switch r { case .waterfowl: return .mallard; case .teal: return .teal; case .smallgame: return .deer; case .springturkey: return .turkey }
+        switch r {
+        case .waterfowl: return .mallard
+        case .teal: return .teal
+        case .smallgame: return UserDefaults.standard.string(forKey: "icon.smallgame") == "squirrel" ? .squirrel : .deer
+        case .springturkey: return .turkey
+        }
     }
 
     static var current: AppIconChoice {
@@ -61,6 +68,7 @@ struct SettingsSheet: View {
                             ForEach(AppIconChoice.allCases) { c in
                                 let on = c == chosen && !follow
                                 Button {
+                                    if c == .deer || c == .squirrel { UserDefaults.standard.set(c.rawValue, forKey: "icon.smallgame") }
                                     follow = false; chosen = c; AppIconChoice.apply(c)
                                 } label: {
                                     VStack(spacing: 6) {
@@ -79,7 +87,7 @@ struct SettingsSheet: View {
                         Toggle(isOn: $follow) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Match what I'm hunting").font(.mono(14, .medium)).foregroundStyle(Theme.bone)
-                                Text("Ducks → mallard, deer → whitetail, turkey → tom, teal → teal. iOS confirms each change with a little alert.")
+                                Text("Ducks → mallard, deer & small game → whitetail, or the squirrel if you picked it, turkey → tom, teal → teal. iOS confirms each change with a little alert.")
                                     .font(.mono(11)).foregroundStyle(Theme.comment)
                             }
                         }

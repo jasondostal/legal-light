@@ -5,6 +5,7 @@
 #   AppIcon-Mallard  the favicon's drake head, pixel for pixel
 #   AppIcon-Teal     blue-winged teal drake: slate head, white crescent
 #   AppIcon-Deer     whitetail buck, head-on
+#   AppIcon-Squirrel fox squirrel on a log, acorn in hand
 #   AppIcon-Turkey   strutting tom, fan up
 # Writes the asset catalog icon sets plus small previews for the in-app picker.
 #   uv run --with pillow tools/gen-icons.py
@@ -203,8 +204,54 @@ def turkey():
     rect(img, 14, 17, 4, 1, "#2a2018")  # neck into body
     return img
 
+def squirrel():
+    """Fox squirrel sitting up on a log, acorn in hand, tail curled over its back."""
+    img = backdrop()
+    def ell(cx, cy, rx, ry, c, test=None):
+        for y in range(N):
+            for x in range(N):
+                if ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1 and (test is None or test(x, y)):
+                    put(img, x, y, c)
+    # the log
+    rect(img, 0, 27, N, 5, "#3e2c1a"); rect(img, 0, 27, N, 1, "#6e4a2c")
+    for x in (5, 13, 22, 28): put(img, x, 29, "#2a1c12"); put(img, x + 1, 30, "#2a1c12")
+    # tail: circles along a curve, pale fringe, darker spine
+    path = [(19, 25), (22, 21), (24.5, 16), (25.5, 11), (24.5, 6.5), (21.5, 3.5), (18.5, 4.5)]
+    def seg_d(px, py):
+        best = 9e9
+        for (ax, ay), (bx, by) in zip(path, path[1:]):
+            dx, dy = bx - ax, by - ay
+            t = max(0, min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)))
+            best = min(best, math.hypot(px - ax - t * dx, py - ay - t * dy))
+        return best
+    for y in range(N):
+        for x in range(N):
+            d = seg_d(x, y)
+            r = 4.6 if y > 8 else 3.6
+            if d <= r:
+                put(img, x, y, "#e8b070" if d > r - 1.1 else ("#8a4a26" if d < 0.9 else "#c06a34"))
+    # body, haunch, belly
+    ell(13, 19.5, 5.2, 7.2, "#c06a34")
+    ell(15.5, 23.5, 3.6, 3.2, "#9a5428")
+    ell(10.6, 20, 2.8, 5.2, "#e9a862")
+    rect(img, 10, 26, 7, 1, "#7a4022")                       # feet on the log
+    # head
+    ell(10.5, 11, 4.4, 3.8, "#c06a34")
+    ell(6.6, 12.2, 2.3, 1.7, "#d07a3e")                      # snout
+    ell(8.5, 13.6, 2.6, 1.2, "#e9a862")                      # cheek/chin
+    put(img, 4, 12, "#2a1c12")                               # nose
+    rect(img, 8, 10, 2, 2, "#06110d"); put(img, 8, 10, "#bfe6d3")  # eye
+    for (x, y, c) in [(11, 5, "#c06a34"), (12, 5, "#c06a34"), (11, 6, "#c06a34"), (12, 6, "#7a4022"),
+                      (13, 6, "#c06a34"), (11, 7, "#c06a34"), (12, 7, "#c06a34"), (13, 7, "#c06a34")]:
+        put(img, x, y, c)                                    # ear
+    # paws and the acorn
+    rect(img, 4, 16, 3, 1, "#5a3a22"); put(img, 5, 15, "#5a3a22")  # cap + stem
+    rect(img, 4, 17, 3, 2, "#a8743e"); put(img, 5, 19, "#a8743e")  # nut
+    rect(img, 7, 16, 2, 2, "#e9a862"); rect(img, 7, 18, 2, 1, "#c06a34")
+    return img
+
 ICONS = [("AppIcon", dawn), ("AppIcon-Mallard", mallard), ("AppIcon-Teal", teal),
-         ("AppIcon-Deer", deer), ("AppIcon-Turkey", turkey)]
+         ("AppIcon-Deer", deer), ("AppIcon-Squirrel", squirrel), ("AppIcon-Turkey", turkey)]
 
 def write_icon(name, art):
     small = Image.new("RGBA", (N, N))
@@ -222,7 +269,7 @@ def write_icon(name, art):
                "properties": {"template-rendering-intent": "original"}}, open(os.path.join(p, "Contents.json"), "w"), indent=1)
     return big
 
-sheet = Image.new("RGB", (5 * 260 + 20, 280), (40, 40, 40))
+sheet = Image.new("RGB", (len(ICONS) * 260 + 20, 280), (40, 40, 40))
 for i, (name, fn) in enumerate(ICONS):
     big = write_icon(name, fn())
     sheet.paste(big.resize((240, 240), Image.NEAREST), (20 + i * 260, 20))
