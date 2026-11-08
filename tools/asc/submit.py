@@ -22,7 +22,9 @@ def must(label, r):
         sys.exit(f'{label}: {r["httpError"]} ' + json.dumps(r['body'].get('errors', r['body']))[:900])
     return r
 
-sub = must('reviewSubmission', call('POST', '/v1/reviewSubmissions', {'data': {
+# reuse an open (unsubmitted) submission, e.g. one left by a refused attempt
+open_subs = call('GET', f'/v1/reviewSubmissions?filter[app]={APP}&filter[state]=READY_FOR_REVIEW').get('data', [])
+sub = open_subs[0] if open_subs else must('reviewSubmission', call('POST', '/v1/reviewSubmissions', {'data': {
     'type': 'reviewSubmissions', 'attributes': {'platform': 'IOS'},
     'relationships': {'app': {'data': {'type': 'apps', 'id': APP}}}}}))['data']
 must('reviewSubmissionItem', call('POST', '/v1/reviewSubmissionItems', {'data': {
