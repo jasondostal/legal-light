@@ -38,6 +38,7 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: Legal Light
+        CFBundleName: Legal Light
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSLocationWhenInUseUsageDescription: Your spot decides which shooting-hours zone you're in. Your location stays on your phone.
