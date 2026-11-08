@@ -25,9 +25,10 @@ enum Alerts {
         guard wantsOpen || wantsClose else { return }
         let name = spot.name ?? "your spot"
         let today = Central.today(now)
+        let announced = MainActor.assumeIsolated { HuntLive.announcedOpens }
         for i in 0..<days {
             let h = spot.hours(on: today.adding(days: i))
-            if wantsOpen, h.open > now {
+            if wantsOpen, h.open > now, !announced.contains(h.open) {
                 add(center, id: "open-\(h.date)", at: h.open,
                     title: "Legal light · \(spot.rules.short)",
                     body: "Shooting hours are open at \(name). Closes at \(Fmt.time(h.close)).")

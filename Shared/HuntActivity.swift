@@ -15,6 +15,8 @@ struct HuntAttributes: ActivityAttributes {
         var phase: Phase
         var open: Date
         var close: Date
+        /// A lead-in whose job ends at legal light (a scheduled link takes over).
+        var handoff = false
     }
     var rules: RuleSet
     var spotName: String
@@ -24,9 +26,10 @@ struct HuntAttributes: ActivityAttributes {
 
 /// What the views show, after accounting for staleness.
 enum HuntPhase: Hashable {
-    case before, open, closed
+    case before, open, closed, handedOff
 
     init(_ state: HuntAttributes.ContentState, stale: Bool) {
+        if state.handoff && stale { self = .handedOff; return }
         switch (state.phase, stale) {
         case (.before, false): self = .before
         case (.before, true), (.open, false): self = .open
@@ -35,23 +38,28 @@ enum HuntPhase: Hashable {
     }
 
     func target(_ s: HuntAttributes.ContentState) -> Date? {
-        switch self { case .before: return s.open; case .open: return s.close; case .closed: return nil }
+        switch self { case .before: return s.open; case .open: return s.close; case .closed, .handedOff: return nil }
     }
 
     /// Start of the current stretch, for progress bars.
     func since(_ s: HuntAttributes.ContentState) -> Date {
         switch self {
         case .before: return s.open.addingTimeInterval(-2 * 3600)
-        case .open, .closed: return s.open
+        case .open, .closed, .handedOff: return s.open
         }
     }
 
     var status: HoursStatus.State {
-        switch self { case .before: return .before; case .open: return .open; case .closed: return .after }
+        switch self { case .before: return .before; case .open, .handedOff: return .open; case .closed: return .after }
     }
 
     var headline: String {
-        switch self { case .before: return "Legal light in"; case .open: return "Legal · closes in"; case .closed: return "Closed for today" }
+        switch self {
+        case .before: return "Legal light in"
+        case .open: return "Legal · closes in"
+        case .closed: return "Closed for today"
+        case .handedOff: return "Legal light"
+        }
     }
 }
 

@@ -53,7 +53,7 @@ struct HuntLiveActivity: Widget {
                         .multilineTextAlignment(.trailing)
                         .frame(maxWidth: 64, alignment: .trailing)
                 } else {
-                    Text("done").font(.mono(12)).foregroundStyle(c)
+                    Text(phase == .handedOff ? "legal" : "done").font(.mono(12)).foregroundStyle(c)
                 }
             } minimal: {
                 Image(systemName: icon(phase)).foregroundStyle(c)
@@ -64,7 +64,7 @@ struct HuntLiveActivity: Widget {
 }
 
 private func icon(_ p: HuntPhase) -> String {
-    switch p { case .before: return "sunrise.fill"; case .open: return "sun.max.fill"; case .closed: return "moon.stars.fill" }
+    switch p { case .before: return "sunrise.fill"; case .open, .handedOff: return "sun.max.fill"; case .closed: return "moon.stars.fill" }
 }
 
 /// The big number: live timer to the next transition, or the closing time once it's over.
@@ -80,7 +80,8 @@ struct CountdownText: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(1).minimumScaleFactor(0.6)
         } else {
-            Text("closed \(Fmt.time(state.close))").font(.mono(size * 0.55, .bold)).foregroundStyle(Theme.reed)
+            Text(phase == .handedOff ? "legal since \(Fmt.time(state.open))" : "closed \(Fmt.time(state.close))")
+                .font(.mono(size * 0.55, .bold)).foregroundStyle(phase == .handedOff ? Theme.mallard : Theme.reed)
         }
     }
 }
@@ -109,7 +110,8 @@ struct HuntBanner: View {
                             .foregroundStyle(Theme.countColor(phase.status))
                             .lineLimit(1)
                     } else {
-                        Text("Closed").font(.mono(34, .bold)).foregroundStyle(Theme.reed)
+                        Text(phase == .handedOff ? "Legal now" : "Closed").font(.mono(34, .bold))
+                            .foregroundStyle(phase == .handedOff ? Theme.mallard : Theme.reed)
                     }
                 }
                 Spacer()
