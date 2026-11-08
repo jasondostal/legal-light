@@ -46,14 +46,17 @@ struct HuntLiveActivity: Widget {
             } compactLeading: {
                 Image(systemName: icon(phase)).foregroundStyle(c)
             } compactTrailing: {
+                // No numbers here: a live countdown made the island stretch across the
+                // screen (Jason, 2026-11-08). A small ring draining toward the next
+                // moment keeps it resting-size; press and hold for the full countdown.
                 if let t = phase.target(ctx.state) {
-                    ShortTimer(target: t)
-                        .font(.mono(12, .bold)).monospacedDigit()
-                        .foregroundStyle(c)
-                        .multilineTextAlignment(.trailing)
-                        .frame(maxWidth: 58, alignment: .trailing)
+                    ProgressView(timerInterval: phase.since(ctx.state)...max(phase.since(ctx.state).addingTimeInterval(1), t),
+                                 countsDown: true) { EmptyView() } currentValueLabel: { EmptyView() }
+                        .progressViewStyle(.circular)
+                        .tint(c)
+                        .frame(width: 18, height: 18)
                 } else {
-                    Text(phase == .handedOff ? "legal" : "done").font(.mono(12)).foregroundStyle(c)
+                    Image(systemName: "moon.stars.fill").foregroundStyle(c)
                 }
             } minimal: {
                 Image(systemName: icon(phase)).foregroundStyle(c)
