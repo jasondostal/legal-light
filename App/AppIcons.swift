@@ -98,6 +98,26 @@ struct SettingsSheet: View {
                     }
                     .panel()
 
+                    AlertSettings(spot: model.spot).panel()
+                    #if DEBUG
+                    VStack(alignment: .leading, spacing: 8) {
+                        SectionHead(text: "Debug", color: Theme.comment)
+                        Button {
+                            Task { try? await HuntLive.startTest(model.spot) }
+                            dismiss()
+                        } label: {
+                            Text("Test the flip: legal light in 45 s, close 2 min later")
+                                .font(.mono(13, .bold)).foregroundStyle(Theme.bone)
+                                .padding(10).frame(maxWidth: .infinity, alignment: .leading)
+                                .overlay(RoundedRectangle(cornerRadius: 7).stroke(Theme.line))
+                        }
+                        .buttonStyle(.plain)
+                        Text("Lock the phone and watch: amber countdown → green \"closes in\" at 0:00 → \"Closed\" 2 minutes later, with no app open.")
+                            .font(.mono(11)).foregroundStyle(Theme.comment)
+                    }
+                    .panel()
+                    #endif
+
                     VStack(alignment: .leading, spacing: 8) {
                         SectionHead(text: "About")
                         Text("Times are read from the Wisconsin DNR's published shooting hours tables (Wis. Admin. Code NR 10.06): one reference town per area, plus 4 minutes per degree of longitude west of 88° W. Everything runs on your phone, with no account and no network.")
@@ -115,5 +135,47 @@ struct SettingsSheet: View {
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() }.tint(Theme.mallard) } }
         }
         .preferredColorScheme(.dark)
+    }
+}
+
+struct AlertSettings: View {
+    let spot: Spot
+    @AppStorage(Alerts.openKey) private var atOpen = false
+    @AppStorage(Alerts.closeKey) private var beforeClose = false
+    @AppStorage(Alerts.leadKey) private var lead = 10
+    @State private var denied = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHead(text: "Alerts")
+            Toggle(isOn: $atOpen) { label("At legal light", "A ping the minute shooting hours open.") }
+            Toggle(isOn: $beforeClose) { label("Before close", "A heads-up so you're not shooting at 4:42.") }
+            if beforeClose {
+                Segmented(items: [5, 10, 15, 30].map { ("\($0)", "\($0) min") }, selected: "\(lead)") { lead = Int($0)! }
+            }
+            Text("For \(spot.rules.label.lowercased()) at \(spot.name ?? "your spot"). Scheduled on the phone two weeks ahead, so they fire with no signal.")
+                .font(.mono(11)).foregroundStyle(Theme.comment)
+            if denied {
+                Text("Notifications are off for Legal Light. Turn them on in Settings → Notifications.").font(.mono(11)).foregroundStyle(Theme.lantern)
+            }
+        }
+        .tint(Theme.mallard)
+        .onChange(of: atOpen) { _, on in changed(on) }
+        .onChange(of: beforeClose) { _, on in changed(on) }
+        .onChange(of: lead) { _, _ in Alerts.reschedule(spot) }
+    }
+
+    private func changed(_ on: Bool) {
+        Task {
+            if on { denied = !(await Alerts.requestPermission()) }
+            Alerts.reschedule(spot)
+        }
+    }
+
+    private func label(_ t: String, _ sub: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(t).font(.mono(14, .medium)).foregroundStyle(Theme.bone)
+            Text(sub).font(.mono(11)).foregroundStyle(Theme.comment)
+        }
     }
 }

@@ -8,12 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		09D61398F8AD03935DA15CA4 /* ShootingHoursApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7038B9AC44EFCD2B62458D11 /* ShootingHoursApp.swift */; };
+		1502C63DB54602FC1B30A525 /* HuntLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4911E8F4870D8714E00FED0 /* HuntLive.swift */; };
 		1C26E255576772A99EC97510 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8534E69A8BDF49310D2A817 /* WidgetKit.framework */; };
 		1CAC043C8448FF6647CBC54C /* OFL-Silkscreen.txt in Resources */ = {isa = PBXBuildFile; fileRef = 92CA0A17A894C47F943B0B47 /* OFL-Silkscreen.txt */; };
 		2A759598457133CC2DC258DA /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7F9B2D75E513E9EAFBB7A1 /* Theme.swift */; };
 		2B5AB078949CBDF2E925C362 /* AppIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9570181CB1B7A5E96B41BB74 /* AppIcons.swift */; };
 		34FC497298C704F72D9FD11D /* HoursWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4473B520A4E570E4089DFB14 /* HoursWidget.swift */; };
 		39433EDEEB69B6990B24807E /* ZoneMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA94CD46E83976EE7F1865D /* ZoneMap.swift */; };
+		3EE28111D815167D522EE90D /* HuntLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 454CC4339798B12CE35F66C2 /* HuntLiveActivity.swift */; };
 		42451F458EA3FDFB06FC5727 /* Silkscreen-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FB321E286B4E2E96689DB795 /* Silkscreen-Regular.ttf */; };
 		438B0571C8F4CE60C8683081 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7F9B2D75E513E9EAFBB7A1 /* Theme.swift */; };
 		5022F4C5BEDF986AD18EE2A4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F07B139663312AEDF8B8DF03 /* Assets.xcassets */; };
@@ -26,7 +28,9 @@
 		7AA77DC6577ECA755DA66335 /* Silkscreen-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FB321E286B4E2E96689DB795 /* Silkscreen-Regular.ttf */; };
 		7B8322DC892E8633DC2466B1 /* LocationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFC3EABDA4BD917C469EF16 /* LocationSheet.swift */; };
 		826E3B9272349CEE146CA95D /* OFL-Silkscreen.txt in Resources */ = {isa = PBXBuildFile; fileRef = 92CA0A17A894C47F943B0B47 /* OFL-Silkscreen.txt */; };
+		86BF6F6969E3F198E5A33C35 /* HuntActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F082B4517A4086AB01321CB6 /* HuntActivity.swift */; };
 		A81862995B555005BA9A802E /* OFL-JetBrainsMono.txt in Resources */ = {isa = PBXBuildFile; fileRef = 99CB420E592A2B53324D2FDE /* OFL-JetBrainsMono.txt */; };
+		AF184E486FC8FBE8A3C314C7 /* HuntLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 454CC4339798B12CE35F66C2 /* HuntLiveActivity.swift */; };
 		B85582BE8759F250DA30B9C7 /* HoursCore in Frameworks */ = {isa = PBXBuildFile; productRef = 3EDC63B9E82A5504EA2BD170 /* HoursCore */; };
 		C8886113A49C17BF6E4FE046 /* HoursWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33BBA8FECEC1C362F29AD7B /* HoursWidgetView.swift */; };
 		CC0462E5ACAA088D2BAFEB58 /* Silkscreen-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 625E46B80D3EABC344164D3A /* Silkscreen-Bold.ttf */; };
@@ -34,7 +38,9 @@
 		DB0D971DBB0BDF80E56BC7BD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C016AB87B2DFEBE4FA6F0BDA /* SwiftUI.framework */; };
 		EC8736020A5358174D2AB16E /* HoursWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A12E09640339BACF8E73044A /* HoursWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F8062F8CE02F0BDA69F686E4 /* HoursWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33BBA8FECEC1C362F29AD7B /* HoursWidgetView.swift */; };
+		F82ADC24AAF3A035E46EA71E /* HuntActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F082B4517A4086AB01321CB6 /* HuntActivity.swift */; };
 		FA79B2EB94CA95931C26C086 /* HoursCore in Frameworks */ = {isa = PBXBuildFile; productRef = 3A8B59DAA200BEECC95434B7 /* HoursCore */; };
+		FB9D832EFF62DD786A4F789F /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B8BAF2F1A33D57D2FCDEDD9 /* Alerts.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,9 +72,11 @@
 		0E7F9B2D75E513E9EAFBB7A1 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		118C0EF2B39B244C750FAC8E /* ShootingHours.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ShootingHours.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4473B520A4E570E4089DFB14 /* HoursWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoursWidget.swift; sourceTree = "<group>"; };
+		454CC4339798B12CE35F66C2 /* HuntLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HuntLiveActivity.swift; sourceTree = "<group>"; };
 		4FA94CD46E83976EE7F1865D /* ZoneMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoneMap.swift; sourceTree = "<group>"; };
 		61686FE0DEDBD6CFF6942DEF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		625E46B80D3EABC344164D3A /* Silkscreen-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Silkscreen-Bold.ttf"; sourceTree = "<group>"; };
+		6B8BAF2F1A33D57D2FCDEDD9 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		7038B9AC44EFCD2B62458D11 /* ShootingHoursApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingHoursApp.swift; sourceTree = "<group>"; };
 		7811DFF8101E1AE9675C25E6 /* JetBrainsMono.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = JetBrainsMono.ttf; sourceTree = "<group>"; };
 		86D0C40CEB51DA9AEB8805FC /* ShootingHours.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShootingHours.entitlements; sourceTree = "<group>"; };
@@ -85,7 +93,9 @@
 		D8534E69A8BDF49310D2A817 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		DBD5ADC04B3EF8C992197A83 /* HoursWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HoursWidget.entitlements; sourceTree = "<group>"; };
 		E343CE58FD3A41F8C4C9152B /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		E4911E8F4870D8714E00FED0 /* HuntLive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HuntLive.swift; sourceTree = "<group>"; };
 		F07B139663312AEDF8B8DF03 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F082B4517A4086AB01321CB6 /* HuntActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HuntActivity.swift; sourceTree = "<group>"; };
 		FB321E286B4E2E96689DB795 /* Silkscreen-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Silkscreen-Regular.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -123,6 +133,7 @@
 		7621CF273F41E968BAF34230 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				F082B4517A4086AB01321CB6 /* HuntActivity.swift */,
 				0E7F9B2D75E513E9EAFBB7A1 /* Theme.swift */,
 				BD296C3ACAF001EBA8E2A6D4 /* Fonts */,
 			);
@@ -132,10 +143,12 @@
 		8E2E6CA2B4A35A6CFB78119D /* App */ = {
 			isa = PBXGroup;
 			children = (
+				6B8BAF2F1A33D57D2FCDEDD9 /* Alerts.swift */,
 				9570181CB1B7A5E96B41BB74 /* AppIcons.swift */,
 				E343CE58FD3A41F8C4C9152B /* AppModel.swift */,
 				F07B139663312AEDF8B8DF03 /* Assets.xcassets */,
 				0A424A8DDFC0C0D2E75F17BE /* HomeView.swift */,
+				E4911E8F4870D8714E00FED0 /* HuntLive.swift */,
 				AC8A4068BB209513318D6414 /* Info.plist */,
 				8DFC3EABDA4BD917C469EF16 /* LocationSheet.swift */,
 				86D0C40CEB51DA9AEB8805FC /* ShootingHours.entitlements */,
@@ -193,6 +206,7 @@
 				DBD5ADC04B3EF8C992197A83 /* HoursWidget.entitlements */,
 				4473B520A4E570E4089DFB14 /* HoursWidget.swift */,
 				C33BBA8FECEC1C362F29AD7B /* HoursWidgetView.swift */,
+				454CC4339798B12CE35F66C2 /* HuntLiveActivity.swift */,
 				61686FE0DEDBD6CFF6942DEF /* Info.plist */,
 			);
 			path = Widget;
@@ -320,6 +334,8 @@
 			files = (
 				34FC497298C704F72D9FD11D /* HoursWidget.swift in Sources */,
 				F8062F8CE02F0BDA69F686E4 /* HoursWidgetView.swift in Sources */,
+				F82ADC24AAF3A035E46EA71E /* HuntActivity.swift in Sources */,
+				3EE28111D815167D522EE90D /* HuntLiveActivity.swift in Sources */,
 				438B0571C8F4CE60C8683081 /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -328,10 +344,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FB9D832EFF62DD786A4F789F /* Alerts.swift in Sources */,
 				2B5AB078949CBDF2E925C362 /* AppIcons.swift in Sources */,
 				675407A6ACFA9ABC17EEF1B4 /* AppModel.swift in Sources */,
 				682520DEC49B1773F11CDF96 /* HomeView.swift in Sources */,
 				C8886113A49C17BF6E4FE046 /* HoursWidgetView.swift in Sources */,
+				86BF6F6969E3F198E5A33C35 /* HuntActivity.swift in Sources */,
+				1502C63DB54602FC1B30A525 /* HuntLive.swift in Sources */,
+				AF184E486FC8FBE8A3C314C7 /* HuntLiveActivity.swift in Sources */,
 				7B8322DC892E8633DC2466B1 /* LocationSheet.swift in Sources */,
 				09D61398F8AD03935DA15CA4 /* ShootingHoursApp.swift in Sources */,
 				2A759598457133CC2DC258DA /* Theme.swift in Sources */,

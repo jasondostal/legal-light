@@ -13,6 +13,7 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 14) {
                 header
                 CountdownCard(spot: model.spot, isDefault: model.isDefaultSpot) { picking = true }
+                HuntButton(spot: model.spot)
                 RulePicker(selection: model.spot.rules) { r in
                     model.setRules(r)
                     if followIcon { AppIconChoice.apply(.forRules(r)) }
@@ -36,6 +37,7 @@ struct HomeView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { proxy.scrollTo(target, anchor: .top) }
             }
             if CommandLine.arguments.contains("-settings") { settings = true }
+            if CommandLine.arguments.contains("-hunttest") { Task { try? await HuntLive.startTest(model.spot) } }
             #endif
         }
         }
@@ -75,6 +77,49 @@ struct HomeView: View {
             }
         }
         .padding(.top, 8)
+    }
+}
+
+// MARK: - the Live Activity
+
+struct HuntButton: View {
+    let spot: Spot
+    @State private var running = HuntLive.isRunning
+    @State private var error: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button {
+                Task {
+                    if running { await HuntLive.endAll() } else {
+                        do { try await HuntLive.start(spot); error = nil } catch { self.error = error.localizedDescription }
+                    }
+                    running = HuntLive.isRunning
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: running ? "stop.fill" : "play.fill")
+                    Text(running ? "End hunt countdown" : "Start hunt countdown")
+                    Spacer()
+                    Text(running ? "on the Dynamic Island" : "Dynamic Island + lock screen").font(.mono(11)).opacity(0.75)
+                }
+                .font(.mono(14, .bold))
+                .foregroundStyle(running ? Theme.bone : Theme.ink)
+                .padding(.horizontal, 14).padding(.vertical, 12)
+                .background(running ? Theme.panel : Theme.mallard, in: RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(running ? Theme.mallardDim : .clear))
+            }
+            .buttonStyle(.plain)
+            .sensoryFeedback(.success, trigger: running)
+            if let error { Text(error).font(.mono(11)).foregroundStyle(Theme.lantern) }
+            else if !running {
+                let wait = spot.status().target.timeIntervalSinceNow
+                if spot.status().state != .open && wait > 8 * 3600 {
+                    Text("Live Activities last 8 hours, so start it when you head out.").font(.mono(11)).foregroundStyle(Theme.comment)
+                }
+            }
+        }
+        .onAppear { running = HuntLive.isRunning }
     }
 }
 

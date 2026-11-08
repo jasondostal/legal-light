@@ -23,6 +23,7 @@ targets:
       - path: App
       - path: Shared
       - path: Widget/HoursWidgetView.swift
+      - path: Widget/HuntLiveActivity.swift
     dependencies:
       - package: HoursCore
       - target: HoursWidget
@@ -32,6 +33,8 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.dev.ducktyping.shootinghours
+        # TODO re-add once an Apple ID is signed in to Xcode (needs a profile regen):
+        # com.apple.developer.usernotifications.time-sensitive: true
     info:
       path: App/Info.plist
       properties:
@@ -44,6 +47,7 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         UIUserInterfaceStyle: Dark
+        NSSupportsLiveActivities: true
         UIAppFonts:
           - Silkscreen-Regular.ttf
           - Silkscreen-Bold.ttf

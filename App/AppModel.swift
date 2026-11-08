@@ -57,6 +57,17 @@ final class AppModel: NSObject, CLLocationManagerDelegate {
     private func persist() {
         SharedStore.save(spot)
         WidgetCenter.shared.reloadAllTimelines()
+        Alerts.reschedule(spot)
+        let s = spot
+        Task { await HuntLive.sync(s) }
+    }
+
+    /// App came forward: roll alerts forward and bring a running hunt up to date.
+    func foreground() {
+        refreshIfGPS()
+        Alerts.reschedule(spot)
+        let s = spot
+        Task { await HuntLive.sync(s) }
     }
 
     // MARK: CLLocationManagerDelegate

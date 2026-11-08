@@ -62,5 +62,8 @@ struct HoursWidget: Widget {
 
 @main
 struct HoursWidgets: WidgetBundle {
-    var body: some Widget { HoursWidget() }
+    var body: some Widget {
+        HoursWidget()
+        HuntLiveActivity()
+    }
 }
