@@ -1,0 +1,111 @@
+import SwiftUI
+import UIKit
+import HoursCore
+
+/// Selectable app icons (Jason, 2026-11-08: pick one for your sport, or let it
+/// follow the rule set you're hunting). Art comes from tools/gen-icons.py.
+enum AppIconChoice: String, CaseIterable, Identifiable {
+    case dawn, mallard, teal, deer, turkey
+    var id: String { rawValue }
+
+    /// nil = the primary icon.
+    var assetName: String? {
+        switch self {
+        case .dawn: return nil
+        case .mallard: return "AppIcon-Mallard"
+        case .teal: return "AppIcon-Teal"
+        case .deer: return "AppIcon-Deer"
+        case .turkey: return "AppIcon-Turkey"
+        }
+    }
+    var preview: String { "Preview-" + (assetName ?? "AppIcon") }
+    var label: String {
+        switch self {
+        case .dawn: return "First light"
+        case .mallard: return "Mallard"
+        case .teal: return "Teal"
+        case .deer: return "Whitetail"
+        case .turkey: return "Tom"
+        }
+    }
+
+    static func forRules(_ r: RuleSet) -> AppIconChoice {
+        switch r { case .waterfowl: return .mallard; case .teal: return .teal; case .smallgame: return .deer; case .springturkey: return .turkey }
+    }
+
+    static var current: AppIconChoice {
+        let n = UIApplication.shared.alternateIconName
+        return allCases.first { $0.assetName == n } ?? .dawn
+    }
+
+    /// iOS shows its own "icon changed" alert each time; only call on a real change.
+    @MainActor static func apply(_ c: AppIconChoice) {
+        guard UIApplication.shared.supportsAlternateIcons, c != current else { return }
+        UIApplication.shared.setAlternateIconName(c.assetName)
+    }
+}
+
+struct SettingsSheet: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("icon.followRules") private var follow = false
+    @State private var chosen = AppIconChoice.current
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        SectionHead(text: "App icon")
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3), spacing: 14) {
+                            ForEach(AppIconChoice.allCases) { c in
+                                let on = c == chosen && !follow
+                                Button {
+                                    follow = false; chosen = c; AppIconChoice.apply(c)
+                                } label: {
+                                    VStack(spacing: 6) {
+                                        Image(c.preview).resizable().interpolation(.none)
+                                            .aspectRatio(1, contentMode: .fit)
+                                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                                .stroke(on ? Theme.lantern : Theme.line, lineWidth: on ? 3 : 1))
+                                        Text(c.label).font(.mono(11, on ? .bold : .regular))
+                                            .foregroundStyle(on ? Theme.lantern : Theme.reed)
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        Toggle(isOn: $follow) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Match what I'm hunting").font(.mono(14, .medium)).foregroundStyle(Theme.bone)
+                                Text("Ducks → mallard, deer → whitetail, turkey → tom, teal → teal. iOS confirms each change with a little alert.")
+                                    .font(.mono(11)).foregroundStyle(Theme.comment)
+                            }
+                        }
+                        .tint(Theme.mallard)
+                        .onChange(of: follow) { _, on in
+                            if on { let c = AppIconChoice.forRules(model.spot.rules); chosen = c; AppIconChoice.apply(c) }
+                        }
+                    }
+                    .panel()
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        SectionHead(text: "About")
+                        Text("Times are read from the Wisconsin DNR's published shooting hours tables (Wis. Admin. Code NR 10.06): one reference town per area, plus 4 minutes per degree of longitude west of 88° W. Everything runs on your phone, with no account and no network.")
+                        Text("Made in the blind by ducktyping.dev. Fonts: Silkscreen and JetBrains Mono (SIL Open Font License).")
+                            .foregroundStyle(Theme.comment)
+                    }
+                    .font(.mono(12)).foregroundStyle(Theme.bone)
+                    .panel()
+                }
+                .padding(16)
+            }
+            .background(Theme.night)
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() }.tint(Theme.mallard) } }
+        }
+        .preferredColorScheme(.dark)
+    }
+}

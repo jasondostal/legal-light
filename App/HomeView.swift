@@ -4,6 +4,8 @@ import HoursCore
 struct HomeView: View {
     @Environment(AppModel.self) private var model
     @State private var picking = false
+    @State private var settings = false
+    @AppStorage("icon.followRules") private var followIcon = false
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -11,7 +13,10 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 14) {
                 header
                 CountdownCard(spot: model.spot, isDefault: model.isDefaultSpot) { picking = true }
-                RulePicker(selection: model.spot.rules) { model.setRules($0) }
+                RulePicker(selection: model.spot.rules) { r in
+                    model.setRules(r)
+                    if followIcon { AppIconChoice.apply(.forRules(r)) }
+                }
                 DayBar(spot: model.spot)
                 ZoneMap(spot: model.spot) { lat, lon in model.setCoordinates(lat: lat, lon: lon) }
                     .id("map")
@@ -30,16 +35,26 @@ struct HomeView: View {
                 let target = CommandLine.arguments[i + 1]
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { proxy.scrollTo(target, anchor: .top) }
             }
+            if CommandLine.arguments.contains("-settings") { settings = true }
             #endif
         }
         }
         .background(Theme.night.ignoresSafeArea())
         .sheet(isPresented: $picking) { LocationSheet().environment(model) }
+        .sheet(isPresented: $settings) { SettingsSheet().environment(model) }
     }
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("// ~/wi/shooting-hours").font(.pixel(11)).foregroundStyle(Theme.mallard)
+            HStack {
+                Text("// ~/wi/shooting-hours").font(.pixel(11)).foregroundStyle(Theme.mallard)
+                Spacer()
+                Button { settings = true } label: {
+                    Image(systemName: "gearshape").font(.system(size: 16)).foregroundStyle(Theme.reed)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Settings")
+            }
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Shooting Hours").font(.mono(26, .bold)).foregroundStyle(Theme.bone)
@@ -217,38 +232,90 @@ struct DayBar: View {
     }
 }
 
-// MARK: - the week
+// MARK: - the week, any week
 
 struct WeekCard: View {
     let spot: Spot
+    /// First day shown; nil = today (follows the date as it rolls over).
+    @State private var start: YMD? = nil
+
+    private var today: YMD { Central.today() }
+    private var first: YMD { start ?? today }
 
     var body: some View {
-        let today = Central.today()
+        let days = (0..<7).map { first.adding(days: $0) }
+        let hours = days.map { spot.hours(on: $0) }
+        let computed = Set(hours.filter { $0.source == .computed }.map { $0.date.y })
         VStack(alignment: .leading, spacing: 0) {
-            SectionHead(text: "This week").padding(.bottom, 10)
+            HStack {
+                SectionHead(text: first == today ? "This week" : "Week of \(Fmt.day(first))")
+                Spacer()
+                if first != today {
+                    Button { withAnimation(.snappy) { start = nil } } label: {
+                        Text("Today").font(.mono(12, .bold)).foregroundStyle(Theme.mallard)
+                    }.buttonStyle(.plain)
+                }
+            }
+            .padding(.bottom, 10)
+            controls.padding(.bottom, 12)
             HStack {
                 Text("Day"); Spacer()
                 Text("Opens").frame(width: 84, alignment: .leading)
                 Text("Closes").frame(width: 84, alignment: .leading)
             }
             .font(.mono(11)).foregroundStyle(Theme.reed).padding(.horizontal, 6).padding(.bottom, 6)
-            ForEach(0..<7, id: \.self) { i in
-                let d = today.adding(days: i)
-                let h = spot.hours(on: d)
+            ForEach(Array(zip(days, hours).enumerated()), id: \.offset) { i, pair in
+                let (d, h) = pair
+                let isToday = d == today
                 HStack {
-                    Text(i == 0 ? "Today" : Fmt.day(d)).foregroundStyle(i == 0 ? Theme.lantern : Theme.bone)
+                    Text(isToday ? "Today" : Fmt.day(d)).foregroundStyle(isToday ? Theme.lantern : Theme.bone)
                     Spacer()
-                    Text(Fmt.time(h.open)).frame(width: 84, alignment: .leading)
+                    Text(Fmt.time(h.open) + (h.source == .computed ? "*" : " ")).frame(width: 84, alignment: .leading)
                     Text(Fmt.time(h.close)).frame(width: 84, alignment: .leading)
                 }
-                .font(.mono(13, i == 0 ? .bold : .regular)).monospacedDigit()
+                .font(.mono(13, isToday ? .bold : .regular)).monospacedDigit()
                 .foregroundStyle(Theme.bone)
                 .padding(.vertical, 8).padding(.horizontal, 6)
-                .background(i == 0 ? Theme.lantern.opacity(0.07) : .clear, in: RoundedRectangle(cornerRadius: 4))
+                .background(isToday ? Theme.lantern.opacity(0.07) : .clear, in: RoundedRectangle(cornerRadius: 4))
                 .overlay(alignment: .bottom) { if i < 6 { Rectangle().fill(Theme.line).frame(height: 1) } }
+            }
+            if !computed.isEmpty {
+                Text("* Computed the DNR's way: the app has no \(computed.sorted().map(String.init).joined(separator: "/")) table yet. Check the official one before you hunt.")
+                    .font(.mono(10)).foregroundStyle(Theme.lantern).padding(.top, 8)
             }
         }
         .panel()
+        .sensoryFeedback(.selection, trigger: first)
+    }
+
+    /// ‹ week · date picker · week ›
+    private var controls: some View {
+        HStack(spacing: 8) {
+            stepButton("chevron.left") { start = first.adding(days: -7) }
+            DatePicker("Date", selection: Binding(
+                get: { Central.toDate(first, minutes: 720) },
+                set: { start = Central.today($0) }), displayedComponents: .date)
+                .labelsHidden()
+                .datePickerStyle(.compact)
+                .environment(\.timeZone, Central.zone)
+                .tint(Theme.lantern)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 3)
+                .background(Theme.night, in: RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.line))
+            stepButton("chevron.right") { start = first.adding(days: 7) }
+        }
+    }
+
+    private func stepButton(_ icon: String, _ act: @escaping () -> Void) -> some View {
+        Button { withAnimation(.snappy) { act() } } label: {
+            Image(systemName: icon).font(.system(size: 14, weight: .bold))
+                .frame(width: 44, height: 40)
+                .foregroundStyle(Theme.bone)
+                .background(Theme.night, in: RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.line))
+        }
+        .buttonStyle(.plain)
     }
 }
 
