@@ -63,6 +63,15 @@ enum HuntPhase: Hashable {
     }
 }
 
+extension HuntPhase {
+    /// A lead-in can't change once legal light passes and it freezes at 0:00,
+    /// so it names the time ("Legal light at 6:14 a.m. · 0:00" reads as "it's
+    /// here"; "Legal light in · 0:00" reads as broken).
+    func headline(_ s: HuntAttributes.ContentState) -> String {
+        self == .before && s.handoff ? "Legal light at \(Fmt.time(s.open))" : headline
+    }
+}
+
 extension HuntAttributes.ContentState {
     /// Content for a spot at `now`: waiting for the next opening, or legal until close.
     static func at(_ now: Date, spot: Spot) -> (state: Self, stale: Date) {

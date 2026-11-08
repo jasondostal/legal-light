@@ -17,7 +17,7 @@ struct HuntLiveActivity: Widget {
                 DynamicIslandExpandedRegion(.leading) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(ctx.attributes.rules.short.uppercased()).font(.pixel(10)).foregroundStyle(Theme.bone)
-                        Text(phase.headline.uppercased()).font(.pixel(9)).foregroundStyle(c)
+                        Text(phase.headline(ctx.state).uppercased()).font(.pixel(9)).foregroundStyle(c)
                     }
                     .padding(.leading, 6)
                 }
@@ -103,7 +103,7 @@ struct HuntBanner: View {
             }
             HStack(alignment: .lastTextBaseline) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(phase.headline.uppercased()).font(.pixel(10)).kerning(1).foregroundStyle(c)
+                    Text(phase.headline(state).uppercased()).font(.pixel(10)).kerning(1).foregroundStyle(c)
                     if let t = phase.target(state) {
                         Text(timerInterval: Date.distantPast...max(Date.distantPast, t), countsDown: true)
                             .font(.mono(38, .bold)).kerning(-1.5).monospacedDigit()
