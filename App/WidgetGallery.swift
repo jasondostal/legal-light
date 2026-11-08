@@ -34,9 +34,9 @@ struct WidgetGallery: View {
                     HStack {
                         Image(systemName: "sun.max.fill").foregroundStyle(Theme.mallard)
                         Spacer()
-                        Text(timerInterval: Date.distantPast...c.close, countsDown: true)
+                        ShortTimer(target: c.close)
                             .font(.mono(13, .bold)).monospacedDigit().foregroundStyle(Theme.mallard)
-                            .multilineTextAlignment(.trailing).frame(maxWidth: 64, alignment: .trailing)
+                            .multilineTextAlignment(.trailing).frame(maxWidth: 58, alignment: .trailing)
                     }
                     .padding(.horizontal, 14).frame(width: 250, height: 37).background(.black, in: Capsule())
                     VStack(spacing: 6) {

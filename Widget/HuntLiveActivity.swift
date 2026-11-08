@@ -47,11 +47,11 @@ struct HuntLiveActivity: Widget {
                 Image(systemName: icon(phase)).foregroundStyle(c)
             } compactTrailing: {
                 if let t = phase.target(ctx.state) {
-                    Text(timerInterval: Date.distantPast...max(Date.distantPast, t), countsDown: true)
-                        .font(.mono(13, .bold)).monospacedDigit()
+                    ShortTimer(target: t)
+                        .font(.mono(12, .bold)).monospacedDigit()
                         .foregroundStyle(c)
                         .multilineTextAlignment(.trailing)
-                        .frame(maxWidth: 64, alignment: .trailing)
+                        .frame(maxWidth: 58, alignment: .trailing)
                 } else {
                     Text(phase == .handedOff ? "legal" : "done").font(.mono(12)).foregroundStyle(c)
                 }
@@ -65,6 +65,16 @@ struct HuntLiveActivity: Widget {
 
 private func icon(_ p: HuntPhase) -> String {
     switch p { case .before: return "sunrise.fill"; case .open, .handedOff: return "sun.max.fill"; case .closed: return "moon.stars.fill" }
+}
+
+/// Compact-island timer. Same width rules as Apple's own Clock timer: "3:06:41"
+/// more than an hour out, "23:41" in the last hour (the pre-dawn case). The
+/// iOS 18 timer format can't do "3:06" (two fields turn into "3 hours, 6 minutes").
+struct ShortTimer: View {
+    let target: Date
+    var body: some View {
+        Text(timerInterval: Date.distantPast...max(Date.distantPast, target), countsDown: true)
+    }
 }
 
 /// The big number: live timer to the next transition, or the closing time once it's over.
