@@ -6,19 +6,21 @@ struct HomeView: View {
     @State private var picking = false
     @State private var settings = false
     @AppStorage("icon.followRules") private var followIcon = false
+    @AppStorage("seenDisclaimer") private var seenDisclaimer = false
 
     var body: some View {
         ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 header
+                if !seenDisclaimer { FirstRunNote { withAnimation(.snappy) { seenDisclaimer = true } } }
                 CountdownCard(spot: model.spot, isDefault: model.isDefaultSpot) { picking = true }
                 HuntButton(spot: model.spot)
                 RulePicker(selection: model.spot.rules) { r in
                     model.setRules(r)
                     if followIcon { AppIconChoice.apply(.forRules(r)) }
                 }
-                DayBar(spot: model.spot)
+                DayBar(spot: model.spot).id("daybar")
                 ZoneMap(spot: model.spot) { lat, lon in model.setCoordinates(lat: lat, lon: lon) }
                     .id("map")
                 WeekCard(spot: model.spot).id("week")
@@ -37,6 +39,7 @@ struct HomeView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { proxy.scrollTo(target, anchor: .top) }
             }
             if CommandLine.arguments.contains("-settings") { settings = true }
+            if CommandLine.arguments.contains("-store") { Task { await HuntLive.endAll() } }
             if CommandLine.arguments.contains("-hunttest") { Task { try? await HuntLive.startTest(model.spot) } }
             #endif
         }
@@ -80,6 +83,30 @@ struct HomeView: View {
     }
 }
 
+// MARK: - shown once, on first launch (no click-through, no repeats)
+
+struct FirstRunNote: View {
+    let dismiss: () -> Void
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            (Text("Heads up. ").bold().foregroundStyle(Theme.lantern)
+             + Text("Legal Light reads the Wisconsin DNR's published shooting hours tables, but it isn't the law. Check the regulations and season dates, and give yourself a margin."))
+                .font(.mono(12)).foregroundStyle(Theme.bone)
+            Button(action: dismiss) {
+                Text("Got it").font(.mono(13, .bold)).foregroundStyle(Theme.ink)
+                    .padding(.horizontal, 14).padding(.vertical, 7)
+                    .background(Theme.lantern, in: RoundedRectangle(cornerRadius: 7))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.vertical, 12).padding(.horizontal, 14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.lantern.opacity(0.06))
+        .overlay(alignment: .leading) { Rectangle().fill(Theme.lantern).frame(width: 3) }
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+    }
+}
+
 // MARK: - the Live Activity
 
 struct HuntButton: View {
@@ -113,8 +140,8 @@ struct HuntButton: View {
             .sensoryFeedback(.success, trigger: running)
             if let error { Text(error).font(.mono(11)).foregroundStyle(Theme.lantern) }
             else if !running {
-                let wait = spot.status().target.timeIntervalSinceNow
-                if spot.status().state != .open && wait > 8 * 3600 {
+                let wait = spot.status(at: Clock.now).target.timeIntervalSince(Clock.now)
+                if spot.status(at: Clock.now).state != .open && wait > 8 * 3600 {
                     Text("Live Activities last 8 hours, so start it when you head out.").font(.mono(11)).foregroundStyle(Theme.comment)
                 }
             }
@@ -149,7 +176,7 @@ struct CountdownCard: View {
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { ctx in
-            let st = spot.status(at: ctx.date)
+            let st = spot.status(at: Clock.adjust(ctx.date))
             let c = Theme.color(st.state)
             let w = spot.whereabouts
             let z = LongitudeZone.at(lon: spot.lon)
@@ -173,7 +200,7 @@ struct CountdownCard: View {
                 Text(st.state == .open ? "SHOOTING HOURS" : st.state == .before ? "LEGAL LIGHT IN" : "DONE FOR TODAY")
                     .font(.pixel(13)).kerning(2).foregroundStyle(c)
                     .padding(.top, 14)
-                Text(Fmt.duration(st.target.timeIntervalSince(ctx.date)))
+                Text(Fmt.duration(st.target.timeIntervalSince(Clock.adjust(ctx.date))))
                     .font(.mono(72, .bold)).kerning(-2)
                     .monospacedDigit()
                     .foregroundStyle(Theme.countColor(st.state))
@@ -218,7 +245,7 @@ struct DayBar: View {
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 30)) { ctx in
-            let today = Central.today(ctx.date)
+            let today = Central.today(Clock.adjust(ctx.date))
             let h = spot.hours(on: today)
             let sun = h.localSun
             let t0 = h.open.addingTimeInterval(-75 * 60), t1 = h.close.addingTimeInterval(75 * 60)
@@ -242,8 +269,8 @@ struct DayBar: View {
                             .fixedSize().position(x: x(h.open), y: 7)
                         Text(Fmt.time(h.close, bare: true)).font(.mono(11, .bold)).foregroundStyle(Theme.bone)
                             .fixedSize().position(x: x(h.close), y: 7)
-                        if ctx.date > t0 && ctx.date < t1 {
-                            Rectangle().fill(Theme.lantern).frame(width: 2, height: 30).offset(x: x(ctx.date) - 1, y: 14)
+                        if Clock.adjust(ctx.date) > t0 && Clock.adjust(ctx.date) < t1 {
+                            Rectangle().fill(Theme.lantern).frame(width: 2, height: 30).offset(x: x(Clock.adjust(ctx.date)) - 1, y: 14)
                         }
                         ForEach(ticks(t0, t1), id: \.self) { t in
                             Text(hourLabel(t)).font(.mono(9)).foregroundStyle(Theme.comment)
@@ -284,7 +311,7 @@ struct WeekCard: View {
     /// First day shown; nil = today (follows the date as it rolls over).
     @State private var start: YMD? = nil
 
-    private var today: YMD { Central.today() }
+    private var today: YMD { Central.today(Clock.now) }
     private var first: YMD { start ?? today }
 
     var body: some View {
@@ -370,9 +397,9 @@ struct SunCard: View {
     let spot: Spot
 
     var body: some View {
-        let h = spot.hours(on: Central.today())
+        let h = spot.hours(on: Central.today(Clock.now))
         let s = h.localSun
-        let moon = Moon.phase(Date())
+        let moon = Moon.phase(Clock.now)
         VStack(alignment: .leading, spacing: 8) {
             SectionHead(text: "Sun and moon here")
             Grid(alignment: .leading, verticalSpacing: 6) {

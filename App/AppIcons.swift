@@ -100,6 +100,7 @@ struct SettingsSheet: View {
 
                     AlertSettings(spot: model.spot).panel()
                     #if DEBUG
+                    if !CommandLine.arguments.contains("-store") {
                     VStack(alignment: .leading, spacing: 8) {
                         SectionHead(text: "Debug", color: Theme.comment)
                         Button {
@@ -116,6 +117,7 @@ struct SettingsSheet: View {
                             .font(.mono(11)).foregroundStyle(Theme.comment)
                     }
                     .panel()
+                    }
                     #endif
 
                     VStack(alignment: .leading, spacing: 8) {

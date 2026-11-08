@@ -10,7 +10,7 @@ struct WidgetGallery: View {
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { ctx in
             let entries = [spot.rules, .smallgame].map { r in
-                HoursEntry(date: ctx.date, spot: spot, rules: r, status: spot.status(at: ctx.date, rules: r), hasSpot: true)
+                HoursEntry(date: Clock.adjust(ctx.date), spot: spot, rules: r, status: spot.status(at: Clock.adjust(ctx.date), rules: r), hasSpot: true)
             }
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
@@ -24,7 +24,7 @@ struct WidgetGallery: View {
                         HoursWidgetView(e: e, forced: .accessoryInline).frame(height: 22)
                     }
                     Text("Live Activity").font(.headline)
-                    let c = HuntAttributes.ContentState.at(ctx.date, spot: spot).state
+                    let c = HuntAttributes.ContentState.at(Clock.adjust(ctx.date), spot: spot).state
                     let attrs = HuntLive.attributes(for: spot)
                     ForEach([HuntPhase.before, .open, .closed], id: \.self) { ph in
                         HuntBanner(attrs: attrs, state: c, phase: ph)

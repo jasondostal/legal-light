@@ -20,6 +20,14 @@ final class AppModel: NSObject, CLLocationManagerDelegate {
         else { spot = .stevensPoint; isDefaultSpot = true }
         super.init()
         manager.delegate = self
+        #if DEBUG
+        let args = CommandLine.arguments
+        if let i = args.firstIndex(of: "-place"), i + 1 < args.count,
+           let p = Bundled.geo.places.first(where: { $0.name == args[i + 1] }) {
+            spot = Spot(lat: p.lat, lon: p.lon, name: p.name, rules: spot.rules); isDefaultSpot = false
+        }
+        if let i = args.firstIndex(of: "-rules"), i + 1 < args.count, let r = RuleSet(rawValue: args[i + 1]) { spot.rules = r }
+        #endif
         manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
     }
 
