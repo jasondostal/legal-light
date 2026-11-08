@@ -62,8 +62,8 @@ struct HomeView: View {
             }
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Shooting Hours").font(.mono(26, .bold)).foregroundStyle(Theme.bone)
-                    Text("When the light goes legal").font(.mono(14, .medium)).foregroundStyle(Theme.lantern)
+                    Text("Legal Light").font(.mono(26, .bold)).foregroundStyle(Theme.bone)
+                    Text("Wisconsin shooting hours").font(.mono(14, .medium)).foregroundStyle(Theme.lantern)
                 }
                 Spacer()
                 Button { picking = true } label: {
