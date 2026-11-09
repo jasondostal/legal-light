@@ -1,6 +1,6 @@
 # App Store listing: Legal Light
 
-**1.0 (5) submitted for review 2026-11-08 ~16:05 CST** (reviewSubmission db25d737-…). Builds 1–4 were
+**1.0 (7) resubmitted 2026-11-09** (reviewSubmission 7c28922b-…) after pulling 1.0 (5): the map's zoom/center/whole-state buttons never worked (tap gestures swallowed them), found in the field; 7 also follows spot changes, faster map, 44pt gear, running-hunt label, fresh screenshots. Earlier: **1.0 (5) submitted 2026-11-08 ~16:05 CST** (reviewSubmission db25d737-…). Builds 1–4 were
 superseded: 2 narrower island timer, 3 icon+ring island and CFBundleName, 4 in-app header, 5 iPhone-only
 (4 declared iPad, which demanded iPad screenshots). Blockers met on the first submit: contentRightsDeclaration
 (USES_THIRD_PARTY_CONTENT) and App Privacy must be *published*, not just saved.
