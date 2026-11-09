@@ -20,6 +20,9 @@ struct ZoneMap: View {
     @State private var center: CGPoint? = nil   // km; nil = fit the state
     @State private var pinchStart: (zoom: CGFloat, center: CGPoint)? = nil
     @State private var dragStart: CGPoint? = nil
+    /// A finger is down: draw geometry and the essential labels only (towns,
+    /// counties and water names come back when the gesture ends).
+    @State private var interacting = false
     @State private var pick: (lat: Double, lon: Double)? = nil
     @State private var pulse = false
 
@@ -114,21 +117,21 @@ struct ZoneMap: View {
     private func magnify(_ size: CGSize) -> some Gesture {
         MagnifyGesture()
             .onChanged { g in
-                if pinchStart == nil { pinchStart = (zoom, currentCenter(size)) }
+                if pinchStart == nil { pinchStart = (zoom, currentCenter(size)); interacting = true }
                 zoomAt(g.startLocation, by: g.magnification, size, from: pinchStart)
             }
-            .onEnded { _ in pinchStart = nil }
+            .onEnded { _ in pinchStart = nil; interacting = false }
     }
 
     private func drag(_ size: CGSize) -> some Gesture {
         DragGesture(minimumDistance: 6)
             .onChanged { g in
                 guard zoom > 1.01 else { return }
-                if dragStart == nil { dragStart = currentCenter(size) }
+                if dragStart == nil { dragStart = currentCenter(size); interacting = true }
                 let s = fitScale(size) * zoom
                 center = clamped(CGPoint(x: dragStart!.x - g.translation.width / s, y: dragStart!.y - g.translation.height / s))
             }
-            .onEnded { _ in dragStart = nil }
+            .onEnded { _ in dragStart = nil; interacting = false }
     }
 
     private var zoomButtons: some View {
@@ -158,8 +161,9 @@ struct ZoneMap: View {
     private func draw(_ ctx: inout GraphicsContext, _ size: CGSize, _ v: ViewXf) {
         let g = Self.geo, t = v.affine
         let wi = g.wi.applying(t)
-        ctx.fill(g.neighbors.applying(t), with: .color(Theme.neighbor))
-        ctx.stroke(g.neighbors.applying(t), with: .color(Theme.neighborEdge), lineWidth: 1)
+        let nb = g.neighbors.applying(t)
+        ctx.fill(nb, with: .color(Theme.neighbor))
+        ctx.stroke(nb, with: .color(Theme.neighborEdge), lineWidth: 1)
         if layer != .hours {
             let ow = g.openWater.applying(t)
             ctx.fill(ow, with: .color(Theme.openWater))
@@ -212,9 +216,11 @@ struct ZoneMap: View {
     /// (the web page's `room()` logic).
     private func drawLabels(_ ctx: inout GraphicsContext, _ v: ViewXf) {
         var placed: [CGRect] = [CGRect(x: v.size.width - 48, y: v.size.height - 170, width: 48, height: 170)]
-        let me = spot.whereabouts
+        let me = MapLookup.at(spot.lat, spot.lon)
         let myZone = LongitudeZone.at(lon: spot.lon).id
-        let myDuck = Locate.duckZone(lat: spot.lat, lon: spot.lon, where: me)?.zone
+        let myDuck = me.duck?.zone
+        let myArea = spot.areaOverride ?? me.w.area
+        let busy = interacting
         let p = v.point(lat: spot.lat, lon: spot.lon)
         placed.append(CGRect(x: p.x - 10, y: p.y - 10, width: 20, height: 20))
 
@@ -227,13 +233,13 @@ struct ZoneMap: View {
                   !placed.contains(where: { $0.intersects(r) }) else { return false }
             placed.append(r)
             let font: Font = pixel ? .pixel(size, bold: bold) : .mono(size, bold ? .bold : .regular)
-            if halo {
-                let shadow = Text(s).font(font).kerning(kern).foregroundStyle(Theme.night)
+            if halo {   // laid out once, stamped four times
+                let shadow = ctx.resolve(Text(s).font(font).kerning(kern).foregroundStyle(Theme.night))
                 for d in [CGSize(width: -1, height: 0), CGSize(width: 1, height: 0), CGSize(width: 0, height: -1), CGSize(width: 0, height: 1)] {
                     ctx.draw(shadow, at: CGPoint(x: at.x + d.width, y: at.y + d.height), anchor: anchor)
                 }
             }
-            ctx.draw(Text(s).font(font).kerning(kern).foregroundStyle(color), at: at, anchor: anchor)
+            ctx.draw(ctx.resolve(Text(s).font(font).kerning(kern).foregroundStyle(color)), at: at, anchor: anchor)
             return true
         }
 
@@ -261,8 +267,8 @@ struct ZoneMap: View {
             ("SOUTHERN ZONE", myDuck == .south, [(43.35, -89.85), (42.85, -90.6), (43.7, -88.9)], nil),
             ("OPEN WATER", myDuck == .open, [(43.75, -87.35), (44.3, -87.25)], nil),
         ] : [
-            ("NORTHERN TABLE", spot.area == .north, [(45.95, -90.3), (46.2, -89.6)], "Powers, MI times"),
-            ("SOUTHERN TABLE", spot.area == .south, [(43.3, -90.45), (42.85, -90.6), (43.65, -88.95)], "Sheboygan times"),
+            ("NORTHERN TABLE", myArea == .north, [(45.95, -90.3), (46.2, -89.6)], "Powers, MI times"),
+            ("SOUTHERN TABLE", myArea == .south, [(43.3, -90.45), (42.85, -90.6), (43.65, -88.95)], "Sheboygan times"),
         ]
         for b in big {
             for c in b.2 {
@@ -287,6 +293,7 @@ struct ZoneMap: View {
                 }
             }
         }
+        if busy { return }
         for (lat, lon, n) in [(46.95, -90.2, "LAKE SUPERIOR"), (43.05, -87.35, "LAKE MICHIGAN"), (45.05, -87.55, "GREEN BAY")] {
             if layer != .hours && n == "LAKE MICHIGAN" { continue }
             _ = label(n, v.point(lat: lat, lon: lon), size: 10, color: Theme.waterLabel, kern: 1.5, halo: false)
@@ -359,9 +366,10 @@ struct ZoneMap: View {
     }
 
     private func describe(lat: Double, lon: Double, prefix: String) -> some View {
-        let w = Locate.county(lat: lat, lon: lon)
+        let a = MapLookup.at(lat, lon)
+        let w = a.w
         let z = LongitudeZone.at(lon: lon)
-        let d = Locate.duckZone(lat: lat, lon: lon, where: w)
+        let d = a.duck
         var t = Text(prefix).foregroundStyle(Theme.reed)
         if !w.inside && d == nil {
             t = t + Text("Outside Wisconsin.").foregroundStyle(Theme.lantern)
@@ -490,5 +498,23 @@ final class MapGeometry {
         let near10 = L.min { abs($0[0] + 91.25) < abs($1[0] + 91.25) }!
         let near41 = L.filter { $0[0] > -88.3 }.min { abs($0[1] - 44.72) < abs($1[1] - 44.72) }!
         shield10 = CGPoint(x: near10[0], y: near10[1]); shield41 = CGPoint(x: near41[0], y: near41[1])
+    }
+}
+
+/// County, area and duck zone for a point, memoised. The map's body and canvas
+/// run on every pinch frame, and these scan every county outline and the
+/// whole duck line; the answers only change when the point does.
+enum MapLookup {
+    struct Answer { let w: Locate.Where; let duck: (zone: Locate.DuckZone, km: Double?)? }
+    nonisolated(unsafe) private static var cache: [String: Answer] = [:]
+
+    static func at(_ lat: Double, _ lon: Double) -> Answer {
+        let key = "\(lat),\(lon)"
+        if let a = cache[key] { return a }
+        let w = Locate.county(lat: lat, lon: lon)
+        let a = Answer(w: w, duck: Locate.duckZone(lat: lat, lon: lon, where: w))
+        if cache.count > 64 { cache.removeAll() }
+        cache[key] = a
+        return a
     }
 }
