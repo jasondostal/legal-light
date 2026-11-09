@@ -55,9 +55,12 @@ struct HomeView: View {
                 Text("// ~/wi/shooting-hours").font(.pixel(11)).foregroundStyle(Theme.mallard)
                 Spacer()
                 Button { settings = true } label: {
-                    Image(systemName: "gearshape").font(.system(size: 16)).foregroundStyle(Theme.reed)
+                    Image(systemName: "gearshape").font(.system(size: 21)).foregroundStyle(Theme.reed)
+                        .frame(width: 44, height: 44)          // Apple's minimum tap target
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .padding(.trailing, -10)                        // keep the icon aligned to the margin
                 .accessibilityLabel("Settings")
             }
             HStack(alignment: .firstTextBaseline) {
@@ -129,7 +132,7 @@ struct HuntButton: View {
                     Image(systemName: running ? "stop.fill" : "play.fill")
                     Text(running ? "End hunt countdown" : "Start hunt countdown")
                     Spacer()
-                    Text(running ? "on the Dynamic Island" : "Dynamic Island + lock screen").font(.mono(11)).opacity(0.75)
+                    Text(running ? runningNote : "Dynamic Island + lock screen").font(.mono(11)).opacity(0.75)
                 }
                 .font(.mono(14, .bold))
                 .foregroundStyle(running ? Theme.bone : Theme.ink)
@@ -148,6 +151,12 @@ struct HuntButton: View {
             }
         }
         .onAppear { running = HuntLive.isRunning }
+    }
+
+    /// While a hunt runs, say what it's counting to rather than where it shows.
+    private var runningNote: String {
+        let st = spot.status(at: Clock.now)
+        return st.state == .open ? "until close at \(Fmt.time(st.target))" : "legal light at \(Fmt.time(st.target))"
     }
 }
 
