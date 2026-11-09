@@ -29,11 +29,14 @@
 		7B8322DC892E8633DC2466B1 /* LocationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFC3EABDA4BD917C469EF16 /* LocationSheet.swift */; };
 		826E3B9272349CEE146CA95D /* OFL-Silkscreen.txt in Resources */ = {isa = PBXBuildFile; fileRef = 92CA0A17A894C47F943B0B47 /* OFL-Silkscreen.txt */; };
 		86BF6F6969E3F198E5A33C35 /* HuntActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F082B4517A4086AB01321CB6 /* HuntActivity.swift */; };
+		8F73152C4FAA533D96FC8BBA /* MapStepTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED7EDFBFF382D7846B77395 /* MapStepTests.swift */; };
 		A81862995B555005BA9A802E /* OFL-JetBrainsMono.txt in Resources */ = {isa = PBXBuildFile; fileRef = 99CB420E592A2B53324D2FDE /* OFL-JetBrainsMono.txt */; };
 		AF184E486FC8FBE8A3C314C7 /* HuntLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 454CC4339798B12CE35F66C2 /* HuntLiveActivity.swift */; };
 		B85582BE8759F250DA30B9C7 /* HoursCore in Frameworks */ = {isa = PBXBuildFile; productRef = 3EDC63B9E82A5504EA2BD170 /* HoursCore */; };
+		C01A233A58789AE1F58196B8 /* MapStressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC83079C79ABB50C94238FC /* MapStressTests.swift */; };
 		C09C73C65C2FD7C68F6A26F4 /* Clock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2252E8D9E03393AAA234E9DA /* Clock.swift */; };
 		C8886113A49C17BF6E4FE046 /* HoursWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33BBA8FECEC1C362F29AD7B /* HoursWidgetView.swift */; };
+		CA702E1C2614535FE2FB3E8E /* MapButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE093113ACF92310E2318EB /* MapButtonTests.swift */; };
 		CC0462E5ACAA088D2BAFEB58 /* Silkscreen-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 625E46B80D3EABC344164D3A /* Silkscreen-Bold.ttf */; };
 		CD995B65C76EFC6BA328E3F7 /* Clock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2252E8D9E03393AAA234E9DA /* Clock.swift */; };
 		CE5184BDC0812EB5E7B063B9 /* Silkscreen-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 625E46B80D3EABC344164D3A /* Silkscreen-Bold.ttf */; };
@@ -52,6 +55,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2CC6C73F96E720C267591CA9;
 			remoteInfo = HoursWidget;
+		};
+		FA9DC603BA95B44EF70211D2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E0F45341950FB8C8F7E12890 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CCA13CAC4F0B7ED3286E56C6;
+			remoteInfo = ShootingHours;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -77,6 +87,7 @@
 		4473B520A4E570E4089DFB14 /* HoursWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoursWidget.swift; sourceTree = "<group>"; };
 		454CC4339798B12CE35F66C2 /* HuntLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HuntLiveActivity.swift; sourceTree = "<group>"; };
 		4FA94CD46E83976EE7F1865D /* ZoneMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoneMap.swift; sourceTree = "<group>"; };
+		5DE093113ACF92310E2318EB /* MapButtonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapButtonTests.swift; sourceTree = "<group>"; };
 		61686FE0DEDBD6CFF6942DEF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		625E46B80D3EABC344164D3A /* Silkscreen-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Silkscreen-Bold.ttf"; sourceTree = "<group>"; };
 		6B8BAF2F1A33D57D2FCDEDD9 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
@@ -89,10 +100,13 @@
 		99CB420E592A2B53324D2FDE /* OFL-JetBrainsMono.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "OFL-JetBrainsMono.txt"; sourceTree = "<group>"; };
 		A035F6FD6652517334D327F9 /* WidgetGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetGallery.swift; sourceTree = "<group>"; };
 		A12E09640339BACF8E73044A /* HoursWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = HoursWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		ABC83079C79ABB50C94238FC /* MapStressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapStressTests.swift; sourceTree = "<group>"; };
 		AC8A4068BB209513318D6414 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		AED7EDFBFF382D7846B77395 /* MapStepTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapStepTests.swift; sourceTree = "<group>"; };
 		B8D5693021F27B9B17A784F6 /* HoursCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = HoursCore; path = HoursCore; sourceTree = SOURCE_ROOT; };
 		C016AB87B2DFEBE4FA6F0BDA /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		C33BBA8FECEC1C362F29AD7B /* HoursWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoursWidgetView.swift; sourceTree = "<group>"; };
+		CEBB79ECE728F3EB5628CE86 /* ShootingHoursUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ShootingHoursUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8534E69A8BDF49310D2A817 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		DBD5ADC04B3EF8C992197A83 /* HoursWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HoursWidget.entitlements; sourceTree = "<group>"; };
 		E343CE58FD3A41F8C4C9152B /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
@@ -175,6 +189,16 @@
 			path = Fonts;
 			sourceTree = "<group>";
 		};
+		BDE621B120682C90605B1498 /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				5DE093113ACF92310E2318EB /* MapButtonTests.swift */,
+				AED7EDFBFF382D7846B77395 /* MapStepTests.swift */,
+				ABC83079C79ABB50C94238FC /* MapStressTests.swift */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
 		C8579D8960AB3896D4AFFE40 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
@@ -189,6 +213,7 @@
 				8E2E6CA2B4A35A6CFB78119D /* App */,
 				C8579D8960AB3896D4AFFE40 /* Packages */,
 				7621CF273F41E968BAF34230 /* Shared */,
+				BDE621B120682C90605B1498 /* UITests */,
 				F6CFE616AF6B4C9A1A38A52B /* Widget */,
 				386CAB38D45ED40EDEEEBD8D /* Frameworks */,
 				D48F9942F9AD243CEB241D6C /* Products */,
@@ -200,6 +225,7 @@
 			children = (
 				A12E09640339BACF8E73044A /* HoursWidget.appex */,
 				118C0EF2B39B244C750FAC8E /* ShootingHours.app */,
+				CEBB79ECE728F3EB5628CE86 /* ShootingHoursUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -261,6 +287,24 @@
 			productReference = 118C0EF2B39B244C750FAC8E /* ShootingHours.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E69507BCE39D7C449A98E9E6 /* ShootingHoursUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2FB977B198B481092B4312B9 /* Build configuration list for PBXNativeTarget "ShootingHoursUITests" */;
+			buildPhases = (
+				29AD9CFF4427DEED1B6AF35E /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C6F3D9E21B2EB696BEFBCABE /* PBXTargetDependency */,
+			);
+			name = ShootingHoursUITests;
+			packageProductDependencies = (
+			);
+			productName = ShootingHoursUITests;
+			productReference = CEBB79ECE728F3EB5628CE86 /* ShootingHoursUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -277,6 +321,11 @@
 					CCA13CAC4F0B7ED3286E56C6 = {
 						DevelopmentTeam = 8N87FTKWXL;
 						ProvisioningStyle = Automatic;
+					};
+					E69507BCE39D7C449A98E9E6 = {
+						DevelopmentTeam = 8N87FTKWXL;
+						ProvisioningStyle = Automatic;
+						TestTargetID = CCA13CAC4F0B7ED3286E56C6;
 					};
 				};
 			};
@@ -298,6 +347,7 @@
 			projectRoot = "";
 			targets = (
 				CCA13CAC4F0B7ED3286E56C6 /* ShootingHours */,
+				E69507BCE39D7C449A98E9E6 /* ShootingHoursUITests */,
 				2CC6C73F96E720C267591CA9 /* HoursWidget */,
 			);
 		};
@@ -332,6 +382,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		29AD9CFF4427DEED1B6AF35E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CA702E1C2614535FE2FB3E8E /* MapButtonTests.swift in Sources */,
+				8F73152C4FAA533D96FC8BBA /* MapStepTests.swift in Sources */,
+				C01A233A58789AE1F58196B8 /* MapStressTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5192206FAE4272080A36BBBF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -374,6 +434,11 @@
 			target = 2CC6C73F96E720C267591CA9 /* HoursWidget */;
 			targetProxy = 10DD58B967B33CB0D06FA6B9 /* PBXContainerItemProxy */;
 		};
+		C6F3D9E21B2EB696BEFBCABE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CCA13CAC4F0B7ED3286E56C6 /* ShootingHours */;
+			targetProxy = FA9DC603BA95B44EF70211D2 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -412,7 +477,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8N87FTKWXL;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -491,6 +556,23 @@
 			};
 			name = Release;
 		};
+		B983738C9D053CED5B2467DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ducktyping.shootinghours.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = ShootingHours;
+			};
+			name = Release;
+		};
 		C0E717E16A20FFD22A625F50 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -545,7 +627,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 8N87FTKWXL;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -578,9 +660,35 @@
 			};
 			name = Debug;
 		};
+		E6684A4DF4EC346324130D30 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ducktyping.shootinghours.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = ShootingHours;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2FB977B198B481092B4312B9 /* Build configuration list for PBXNativeTarget "ShootingHoursUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E6684A4DF4EC346324130D30 /* Debug */,
+				B983738C9D053CED5B2467DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		370122A1A7601809507F29B7 /* Build configuration list for PBXProject "ShootingHours" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

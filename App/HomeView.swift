@@ -77,6 +77,7 @@ struct HomeView: View {
                     .background(Theme.mallard, in: RoundedRectangle(cornerRadius: 8))
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("spotButton")
             }
         }
         .padding(.top, 8)
