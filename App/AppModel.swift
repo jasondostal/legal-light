@@ -27,6 +27,7 @@ final class AppModel: NSObject, CLLocationManagerDelegate {
             spot = Spot(lat: p.lat, lon: p.lon, name: p.name, rules: spot.rules); isDefaultSpot = false
         }
         if let i = args.firstIndex(of: "-rules"), i + 1 < args.count, let r = RuleSet(rawValue: args[i + 1]) { spot.rules = r }
+        if let i = args.firstIndex(of: "-layer"), i + 1 < args.count { UserDefaults.standard.set(args[i + 1], forKey: "map.layer") }
         #endif
         manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
     }

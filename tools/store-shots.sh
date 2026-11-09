@@ -15,7 +15,7 @@ shot() { # name time layer args...
   xcrun simctl status_bar $SIM override --time "$t" --batteryState charged --batteryLevel 100 \
     --cellularMode active --cellularBars 3 --wifiBars 0 --dataNetwork lte
   xcrun simctl terminate $SIM $BID 2>/dev/null || true
-  xcrun simctl launch $SIM $BID -store "$@" >/dev/null
+  xcrun simctl launch $SIM $BID -store -layer $layer "$@" >/dev/null
   sleep 4
   xcrun simctl io $SIM screenshot $OUT/$name.png >/dev/null 2>&1
   echo "  $name"
