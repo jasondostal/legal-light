@@ -41,28 +41,49 @@ struct ZoneMap: View {
                 let size = gp.size
                 let v = view(size)
                 ZStack(alignment: .topLeading) {
-                    Canvas { ctx, sz in draw(&ctx, sz, v) }
-                    me(v)
-                    zoomButtons.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing).padding(8)
+                    // The map and its gestures. The buttons must NOT live inside this
+                    // layer: its tap gestures swallowed every tap meant for them
+                    // (Jason, 2026-11-09: "the double arrow button does nothing").
+                    ZStack(alignment: .topLeading) {
+                        Canvas { ctx, sz in draw(&ctx, sz, v) }
+                        me(v)
+                    }
+                    .contentShape(Rectangle())
+                    .gesture(magnify(size), including: .all)
+                    .simultaneousGesture(drag(size), including: zoom > 1.01 ? .all : .subviews)
+                    .gesture(SpatialTapGesture(count: 2).onEnded { e in zoomAt(e.location, by: 2, size) }
+                        .exclusively(before: SpatialTapGesture().onEnded { e in
+                            let p = v.unproject(e.location)
+                            withAnimation(.snappy) { pick = (p.lat, p.lon) }
+                        }))
+                    zoomButtons.padding(8)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                        .allowsHitTesting(true)
                 }
-                .contentShape(Rectangle())
-                .gesture(magnify(size), including: .all)
-                .simultaneousGesture(drag(size), including: zoom > 1.01 ? .all : .subviews)
-                .gesture(SpatialTapGesture(count: 2).onEnded { e in zoomAt(e.location, by: 2, size) }
-                    .exclusively(before: SpatialTapGesture().onEnded { e in
-                        let p = v.unproject(e.location)
-                        withAnimation(.snappy) { pick = (p.lat, p.lon) }
-                    }))
             }
             .frame(height: 380)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("zonemap")
             .background(Theme.water)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(Theme.line))
             readout
             legend
+            #if DEBUG
+            Color.clear.frame(width: 1, height: 1)   // UI tests read the zoom here
+                .accessibilityElement()
+                .accessibilityIdentifier("mapzoom")
+                .accessibilityValue(String(format: "zoom %.2f", zoom))
+            #endif
         }
         .panel()
         .onAppear { pulse = true }
+        // Follow the spot: after a GPS fix or a town pick, a zoomed-in map stayed
+        // parked wherever you'd left it (east coast, in Jason's case).
+        .onChange(of: "\(spot.lat),\(spot.lon)") { _, _ in
+            pick = nil
+            if zoom > 1.01 { withAnimation(.snappy) { center = spotKm } }
+        }
     }
 
     // MARK: view transform: screen = km * s + t
@@ -136,16 +157,16 @@ struct ZoneMap: View {
 
     private var zoomButtons: some View {
         VStack(spacing: 6) {
-            mapButton("plus") { zoom = min(Self.zmax, zoom * 1.8); if center == nil { center = spotKm } }
-            mapButton("minus") { zoom = max(1, zoom / 1.8) }
-            mapButton("location.fill") { zoom = max(zoom, 4); center = spotKm }
-            if zoom > 1.01 { mapButton("arrow.down.right.and.arrow.up.left") { zoom = 1; center = nil } }
+            mapButton("plus", id: "Zoom in") { zoom = min(Self.zmax, zoom * 1.8); if center == nil { center = spotKm } }
+            mapButton("minus", id: "Zoom out") { zoom = max(1, zoom / 1.8) }
+            mapButton("location.fill", id: "Center on your spot") { zoom = max(zoom, 4); center = spotKm }
+            if zoom > 1.01 { mapButton("arrow.down.right.and.arrow.up.left", id: "Whole state") { zoom = 1; center = nil } }
         }
     }
 
     private var spotKm: CGPoint { CGPoint(x: MapGeometry.px(spot.lon), y: MapGeometry.py(spot.lat)) }
 
-    private func mapButton(_ icon: String, _ act: @escaping () -> Void) -> some View {
+    private func mapButton(_ icon: String, id: String, _ act: @escaping () -> Void) -> some View {
         Button { withAnimation(.snappy) { act() } } label: {
             Image(systemName: icon).font(.system(size: 13, weight: .bold))
                 .frame(width: 34, height: 34)
@@ -154,6 +175,7 @@ struct ZoneMap: View {
                 .overlay(RoundedRectangle(cornerRadius: 7).stroke(Theme.line))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(id)
     }
 
     // MARK: drawing

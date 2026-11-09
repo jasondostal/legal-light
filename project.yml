@@ -14,11 +14,14 @@ settings:
     SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1"
     MARKETING_VERSION: "1.0"
-    CURRENT_PROJECT_VERSION: "5"
+    CURRENT_PROJECT_VERSION: "6"
 targets:
   ShootingHours:
     type: application
     platform: iOS
+    scheme:
+      testTargets:
+        - ShootingHoursUITests
     sources:
       - path: App
       - path: Shared
@@ -61,6 +64,18 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: AppIcon-Mallard AppIcon-Teal AppIcon-Deer AppIcon-Squirrel AppIcon-Turkey
         ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: NO
+  ShootingHoursUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
+    dependencies:
+      - target: ShootingHours
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.ducktyping.shootinghours.uitests
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: YES
   HoursWidget:
     type: app-extension
     platform: iOS
