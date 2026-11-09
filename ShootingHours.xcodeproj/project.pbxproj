@@ -34,6 +34,7 @@
 		AF184E486FC8FBE8A3C314C7 /* HuntLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 454CC4339798B12CE35F66C2 /* HuntLiveActivity.swift */; };
 		B85582BE8759F250DA30B9C7 /* HoursCore in Frameworks */ = {isa = PBXBuildFile; productRef = 3EDC63B9E82A5504EA2BD170 /* HoursCore */; };
 		C01A233A58789AE1F58196B8 /* MapStressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC83079C79ABB50C94238FC /* MapStressTests.swift */; };
+		C0595A8E2677A52AEAE9667F /* HuntButtonShot.swift in Sources */ = {isa = PBXBuildFile; fileRef = C83F585B6B0B105F408C0547 /* HuntButtonShot.swift */; };
 		C09C73C65C2FD7C68F6A26F4 /* Clock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2252E8D9E03393AAA234E9DA /* Clock.swift */; };
 		C8886113A49C17BF6E4FE046 /* HoursWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33BBA8FECEC1C362F29AD7B /* HoursWidgetView.swift */; };
 		CA702E1C2614535FE2FB3E8E /* MapButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE093113ACF92310E2318EB /* MapButtonTests.swift */; };
@@ -106,6 +107,7 @@
 		B8D5693021F27B9B17A784F6 /* HoursCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = HoursCore; path = HoursCore; sourceTree = SOURCE_ROOT; };
 		C016AB87B2DFEBE4FA6F0BDA /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		C33BBA8FECEC1C362F29AD7B /* HoursWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoursWidgetView.swift; sourceTree = "<group>"; };
+		C83F585B6B0B105F408C0547 /* HuntButtonShot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HuntButtonShot.swift; sourceTree = "<group>"; };
 		CEBB79ECE728F3EB5628CE86 /* ShootingHoursUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ShootingHoursUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8534E69A8BDF49310D2A817 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		DBD5ADC04B3EF8C992197A83 /* HoursWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HoursWidget.entitlements; sourceTree = "<group>"; };
@@ -192,6 +194,7 @@
 		BDE621B120682C90605B1498 /* UITests */ = {
 			isa = PBXGroup;
 			children = (
+				C83F585B6B0B105F408C0547 /* HuntButtonShot.swift */,
 				5DE093113ACF92310E2318EB /* MapButtonTests.swift */,
 				AED7EDFBFF382D7846B77395 /* MapStepTests.swift */,
 				ABC83079C79ABB50C94238FC /* MapStressTests.swift */,
@@ -386,6 +389,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0595A8E2677A52AEAE9667F /* HuntButtonShot.swift in Sources */,
 				CA702E1C2614535FE2FB3E8E /* MapButtonTests.swift in Sources */,
 				8F73152C4FAA533D96FC8BBA /* MapStepTests.swift in Sources */,
 				C01A233A58789AE1F58196B8 /* MapStressTests.swift in Sources */,
@@ -477,7 +481,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8N87FTKWXL;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -627,7 +631,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 8N87FTKWXL;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
