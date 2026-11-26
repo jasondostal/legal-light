@@ -78,8 +78,11 @@ ok('version localization', patch(f'/v1/appStoreVersionLocalizations/{vloc}', 'ap
                                  {'description': desc, 'keywords': keywords, 'promotionalText': promo,
                                   'supportUrl': support, 'marketingUrl': marketing}))
 
-contact = {'contactFirstName': 'Jason', 'contactLastName': 'Dostal', 'contactPhone': '5555550100',
-           'contactEmail': 'jdostal@witekdivers.com', 'demoAccountRequired': False, 'notes': notes}
+# Who App Review can reach. Personal, so it lives beside the API key and not in the repo:
+# ~/.appstoreconnect/contact.json {"firstName": ..., "lastName": ..., "phone": ..., "email": ...}
+who = json.load(open(os.path.expanduser('~/.appstoreconnect/contact.json')))
+contact = {'contactFirstName': who['firstName'], 'contactLastName': who['lastName'], 'contactPhone': who['phone'],
+           'contactEmail': who['email'], 'demoAccountRequired': False, 'notes': notes}
 rd = call('GET', f'/v1/appStoreVersions/{vid}/appStoreReviewDetail').get('data')
 if rd:
     ok('review detail', patch(f'/v1/appStoreReviewDetails/{rd["id"]}', 'appStoreReviewDetails', rd['id'], contact))
